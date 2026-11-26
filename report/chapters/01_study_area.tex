@@ -1,0 +1,50 @@
+\section{Study area (Exercise 1.1)}\label{sec:study-area}
+\noindent Responsible: Person A. Notebook: \code{notebooks/A1\_study\_area.ipynb}.
+
+\subsection{Number of observations, persons and municipalities (1 point)}
+
+\paragraph{Method.}
+\todo{Name the chosen department and justify the choice. Describe how the detailed census was filtered to the department
+(zone file, department code, \code{IRIS} / \code{CANTVILLE} columns). Explain the three counts: (1) observations are rows
+of the filtered file, (2) persons are the \emph{sum of the weights} \code{IPONDI}, not the number of rows, (3) municipalities
+are counted from a source that identifies all of them. State how the municipalities without IRIS code in the detailed census
+(small municipalities, localised only at ``canton-ou-ville'' level) are handled.}
+
+\paragraph{Result.}
+\todo{Report the three numbers, ideally in \cref{tab:study-area-counts}, and comment on the difference between observations
+and weighted persons.}
+
+\begin{table}[H]
+  \centering
+  \caption{\todo{Caption: census counts for the study area.}}
+  \label{tab:study-area-counts}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    Quantity & Value \\
+    \midrule
+    Person observations (rows, unweighted) & \todo{value} \\
+    Persons (sum of weights \code{IPONDI}) & \todo{value} \\
+    Municipalities & \todo{value} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Map of the department inside of France (1 point)}
+
+\paragraph{Method.}
+\todo{Describe how the map is built from the IGN CONTOURS-IRIS 2021 data (dissolve to departments, highlight the study area,
+projection EPSG:2154).}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{study_area_location}
+  \caption{\todo{Caption: location of the study area inside of France.}}
+  \label{fig:study-area-location}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe what \cref{fig:study-area-location} shows (neighbouring departments, main cities).}
+
+\paragraph{Problems encountered.}
+\todo{Document every problem for partial points: e.g.\ census files per zone, missing IRIS codes, municipality codes that
+differ between sources, how they were resolved.}

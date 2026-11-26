@@ -1,0 +1,2 @@
+# Keep shell scripts LF so ./build.sh works on Linux/macOS clones
+*.sh text eol=lf

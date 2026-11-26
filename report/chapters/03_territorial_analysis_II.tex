@@ -1,0 +1,56 @@
+\section{Territorial analysis II (Exercise 1.3)}\label{sec:territorial-II}
+\noindent Responsible: Person A. Notebook: \code{notebooks/A3\_territorial\_analysis\_II.ipynb}.
+
+\subsection{Working inhabitants per municipality (1 point)}
+
+\paragraph{Method.}
+\todo{Explain exactly how working inhabitants are counted from the aggregated census \cite{insee-census-aggregated}:
+which columns are summed (e.g.\ population older than 15 in the SPCs of active persons) and which are excluded
+(retired, others without professional activity), and aggregation from IRIS to municipality.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{working_inhabitants_bar}
+  \caption{\todo{Caption: number of working inhabitants per municipality.}}
+  \label{fig:working-inhabitants}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Comment on \cref{fig:working-inhabitants}: the largest municipalities, the total number of working inhabitants.}
+
+\subsection{Employees per municipality (1 point)}
+
+\paragraph{Method.}
+\todo{Describe the URSSAF export \cite{urssaf-employment}: columns used, aggregation over APE codes, municipality
+codes, treatment of municipalities missing from the file (zero or not reported?), and what the figure covers
+(private-sector salaried employment only).}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{employees_bar}
+  \caption{\todo{Caption: number of employees per municipality (URSSAF).}}
+  \label{fig:employees}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Comment on \cref{fig:employees} and report the total number of employees.}
+
+\subsection{Difference between working inhabitants and employees (1 point)}
+
+\paragraph{Method.}
+\todo{Define the difference $\text{working inhabitants} - \text{employees}$ per municipality and describe the map.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{net_flow_map}
+  \caption{\todo{Caption: difference between working inhabitants and employees per municipality.}}
+  \label{fig:net-flow-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Name the municipality with the largest net outflow (inhabitants minus employees) and the one with the largest net
+inflow of employees (\cref{fig:net-flow-map}), and interpret.}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ merged municipalities and different code vintages between INSEE and URSSAF, the
+different scope of the two sources (residents versus salaried jobs in the private sector).}

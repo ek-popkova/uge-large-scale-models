@@ -1,0 +1,18 @@
+# Makes `src/lsm` importable: `pip install -e .` (editable install, see README).
+# Dependencies are managed by conda (environment.yml), not here.
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lsm"
+version = "0.1.0"
+description = "Shared code for the Large-scale models course project"
+requires-python = ">=3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]   # lets `pytest` work without installing the package

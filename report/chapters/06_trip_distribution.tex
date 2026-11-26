@@ -1,0 +1,152 @@
+\section{Trip distribution (Exercise 2.3)}\label{sec:trip-distribution}
+\noindent Responsible: Person B. Notebook: \code{notebooks/B1\_trip\_distribution.ipynb}.
+
+\subsection{Distance matrix (1 point)}
+
+\paragraph{Method.}
+The distance matrix $\dij$ contains the Euclidean distances in metres between the centroids of all municipalities of
+the study area, computed in the projected CRS EPSG:2154 (Lambert-93). The order of the municipalities is fixed by
+\code{zones.parquet}. \todo{Describe the computation (centroids, how the zero diagonal, i.e.\ intra-zonal distance,
+is treated) and which zone data the work started from (placeholder or final file of Person A).}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{distance_matrix}
+  \caption{\todo{Caption: distance matrix $\dij$ between municipality centroids (in metres).}}
+  \label{fig:distance-matrix}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Comment on the structure of \cref{fig:distance-matrix} (or give a table of a subset of the matrix).}
+
+\subsection{Gravity model and resulting flows (1 point)}
+
+\paragraph{Method.}
+A double-constrained gravity model is used. The flow from zone $i$ to zone $j$ is
+\begin{equation}\label{eq:gravity}
+  \Fij = \frac{\Oprime}{\sum_{j'} a_{j'}\, \rho_{ij'}} \cdot \frac{\Dj}{\sum_{i'} p_{i'}\, \rho_{i'j}} \cdot \rhoij ,
+\end{equation}
+where $\aj$ and $\pii$ are the attraction and production weighting factors that make the flow matrix match the marginal
+distributions of origins and destinations, and $\rhoij$ is the friction term. The origins are the scaled demand
+$\Oprime$ of \cref{eq:scaling}. The weighting factors are obtained by iterating
+\begin{align}
+  \pii &= \frac{\Oprime}{\sum_j a_j\, \rhoij}, \label{eq:balancing-p}\\
+  \aj  &= \frac{\Dj}{\sum_i p_i\, \rhoij}, \label{eq:balancing-a}
+\end{align}
+starting from $p_i = a_j = 1$ until the values stabilise. The friction model is
+\begin{equation}\label{eq:friction}
+  \rhoij = \exp\!\left(\beta\, \dij + \alpha\right),
+\end{equation}
+with $\dij$ in metres and the parameters of \cref{tab:gravity-parameters}.
+
+\begin{table}[H]
+  \centering
+  \caption{Gravity model parameters (Table~2 of the assignment).}
+  \label{tab:gravity-parameters}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    Parameter & Value \\
+    \midrule
+    $\beta$ & $-1.1\cdot 10^{-4}$ \\
+    $\alpha$ & $-0.4$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\todo{Confirm against the assignment PDF that the symbols of the two parameters in \cref{tab:gravity-parameters} and the form of
+\cref{eq:friction} are right: the text export of the assignment lost the Greek symbols. Note that a constant factor
+$e^{\alpha}$ in $\rhoij$ is absorbed by $\pii$ and $\aj$ and does not change $\Fij$. Describe the stopping
+criterion, the number of iterations needed, and the convergence plot or error.}
+
+\paragraph{Verification on the toy example.}
+\Cref{tab:toy-inputs,tab:toy-distance,tab:toy-flows} reproduce the toy example of the assignment. With the given distances
+and the demand and destination values the implementation must reproduce the flow matrix in \cref{tab:toy-flows} (values
+rounded down); this is checked by \code{tests/test\_gravity\_toy.py}. Note that the assignment prints $D_1 = 9462$ in
+its Table~3, which is a typo: the column sum of \cref{tab:toy-flows} for destination~1 is $420$.
+
+\begin{table}[H]
+  \centering
+  \caption{Toy example: demand and destinations (Table~3 of the assignment, with the corrected $D_1$).}
+  \label{tab:toy-inputs}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    Zone & 1 & 2 & 3 & 4 \\
+    \midrule
+    Origins $\Oi$      & 3396 & 5442 & 43196 & 5681 \\
+    Destinations $\Dj$ & 420  & 2294 & 48377 & 6621 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Toy example: distance matrix $\dij$ in metres (Table~4 of the assignment).}
+  \label{tab:toy-distance}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    $i \backslash j$ & 1 & 2 & 3 & 4 \\
+    \midrule
+    1 & 0     & 4066  & 6595 & 9462  \\
+    2 & 4066  & 0     & 4340 & 10299 \\
+    3 & 6595  & 4340  & 0    & 7287  \\
+    4 & 9462  & 10299 & 7287 & 0     \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Toy example: expected flow matrix $\Fij$, values rounded down (Table~5 of the assignment).}
+  \label{tab:toy-flows}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    $i \backslash j$ & 1 & 2 & 3 & 4 \\
+    \midrule
+    1 & 74  & 220  & 2661  & 439  \\
+    2 & 61  & 445  & 4415  & 518  \\
+    3 & 247 & 1463 & 37659 & 3825 \\
+    4 & 38  & 163  & 3640  & 1837 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Result.}
+\todo{Report whether the toy example is reproduced (maximum deviation). Then present the flows $\Fij$ of the study area
+as a table (excerpt) or a plot, e.g.\ a heat map or a chord diagram, and report the row and column sums versus
+$\Oprime$ and $\Dj$.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{flow_matrix}
+  \caption{\todo{Caption: flow matrix $\Fij$ between municipalities (trips).}}
+  \label{fig:flow-matrix}
+\end{figure}
+
+\subsection{The ten largest flows (1 point)}
+
+\paragraph{Method.}
+\todo{Describe how the ten largest origin--destination pairs are selected (including or excluding intra-zonal flows
+$i = j$; state the choice).}
+
+\begin{table}[H]
+  \centering
+  \caption{\todo{Caption: the ten largest flows between municipalities.}}
+  \label{tab:top10-flows}
+  \begin{tabular}{@{}rllr@{}}
+    \toprule
+    Rank & Origin & Destination & Flow $\Fij$ \\
+    \midrule
+    1  & \todo{name} & \todo{name} & \todo{value} \\
+    2  & \todo{name} & \todo{name} & \todo{value} \\
+    \multicolumn{4}{c}{\todo{\dots rows 3 to 10}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Result.}
+\todo{Name the pairs and comment on \cref{tab:top10-flows}: role of the largest municipalities, intra-zonal flows,
+effect of distance.}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ the typo in the toy example, non-convergence if $\sum_i \Oprime \neq \sum_j \Dj$,
+zero or very small distances, zones with $\Dj = 0$, runtime of the matrix computation.}

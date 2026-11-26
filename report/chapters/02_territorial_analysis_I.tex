@@ -1,0 +1,58 @@
+\section{Territorial analysis I (Exercise 1.2)}\label{sec:territorial-I}
+\noindent Responsible: Person A. Notebook: \code{notebooks/A2\_territorial\_analysis\_I.ipynb}.
+
+All statistics on persons in this chapter use the census weights \code{IPONDI}.
+
+\subsection{Age distribution and average age (1 point)}
+
+\paragraph{Method.}
+\todo{Describe the weighted histogram of the age (\code{AGED}) and the weighted mean age
+$\bar a = \sum_k w_k a_k / \sum_k w_k$.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{age_distribution}
+  \caption{\todo{Caption: weighted age distribution of the study area, average age marked.}}
+  \label{fig:age-distribution}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Report the average age and describe the shape of the distribution (\cref{fig:age-distribution}).}
+
+\subsection{Average age per municipality, youngest and oldest (1 point)}
+
+\paragraph{Method.}
+\todo{Describe how the average age per municipality is computed and how municipalities were identified in the census,
+given that small municipalities carry no IRIS code in the detailed file. State how many persons/municipalities are
+not covered and how this is handled.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{mean_age_map}
+  \caption{\todo{Caption: average age of the population per municipality.}}
+  \label{fig:mean-age-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Name the youngest and the oldest municipality with their average ages, and comment on spatial patterns
+(\cref{fig:mean-age-map}).}
+
+\subsection{Socio-professional categories: study area and at least three municipalities (1 point)}
+
+\paragraph{Method.}
+\todo{Describe the weighted distribution of the eight SPCs (\code{CS1}) for the whole study area and for at least three
+municipalities (justify the selection: e.g.\ largest city, a rural and a peri-urban municipality).}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{spc_distribution}
+  \caption{\todo{Caption: distribution of socio-professional categories, study area versus selected municipalities.}}
+  \label{fig:spc-distribution}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe the differences between the municipalities and the study area as a whole (\cref{fig:spc-distribution}).}
+
+\paragraph{Problems encountered.}
+\todo{Document problems for partial points, e.g.\ persons without municipality identifier, categories coded as 8 for
+persons under 15, weights.}

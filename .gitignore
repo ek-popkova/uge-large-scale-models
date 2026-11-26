@@ -1,0 +1,25 @@
+# Data: never commit (keep the folder skeleton)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# PDFs: never commit, except the figure PDFs that the report includes
+*.pdf
+!report/figures/*.pdf
+report/build/
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

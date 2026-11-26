@@ -1,0 +1,66 @@
+\section{Reproducibility}\label{sec:appendix-reproducibility}
+
+\subsection{Repository structure}
+\todo{Add the repository URL (also in \code{main.tex}, \code{\textbackslash repourl}) and the commit hash of the
+submitted version.}
+
+\begin{table}[H]
+  \centering
+  \caption{Repository structure.}
+  \label{tab:repo-structure}
+  \begin{tabularx}{\textwidth}{@{}lX@{}}
+    \toprule
+    Path & Content \\
+    \midrule
+    \code{README.md}                  & Project overview, team split, how to run \\
+    \code{environment.yml}            & Conda environment \\
+    \code{data/raw/}                  & Downloaded data sets (not in Git) \\
+    \code{data/processed/}            & Intermediate files, including \code{zones.parquet} (not in Git) \\
+    \code{data/DATA\_SOURCES.md}      & Download links and known pitfalls \\
+    \code{src/lsm/}                   & Shared package: configuration, loaders, geometry, gravity model, plotting \\
+    \code{notebooks/A1}--\code{A4}    & Exercises 1.1 to 2.2 (Person A) \\
+    \code{notebooks/B1}--\code{B3}    & Exercises 2.3 to 3.2 (Person B) \\
+    \code{tests/}                     & Toy example of the gravity model \\
+    \code{report/}                    & This report \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Hand-off between the two parts}
+The file \code{data/processed/zones.parquet} is the only interface between Person A and Person B. It contains one row
+per municipality with the columns \code{municipality\_id} (string, INSEE code), \code{name} (string),
+\code{geometry} (EPSG:2154), \code{O} (float, the scaled demand \Oprime) and \code{D} (float, \Dj), with the constraint
+$\sum_i \Oprime = \sum_j \Dj = N$.
+
+\subsection{Commands}
+\begin{lstlisting}[language=bash]
+conda env create -f environment.yml
+conda activate lsm
+pip install -e .            # or: put src/ on sys.path (done in the notebooks)
+pytest                      # toy example of the gravity model
+# run the notebooks in the order A1, A2, A3, A4, B1, B2, B3
+cd report && ./build.sh     # or .\build.ps1 on Windows -> report/build/main.pdf
+\end{lstlisting}
+
+\subsection{Versions and seeds}
+\todo{List the software versions (Python, geopandas, OSMnx, pyrosm, \dots; output of \code{conda list}), the date and
+version of each data set, and the random seed(s) used for the disaggregation (see \code{src/lsm/config.py}).}
+
+\begin{table}[H]
+  \centering
+  \caption{Versions and seeds.}
+  \label{tab:versions}
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    Item & Value \\
+    \midrule
+    Python & \todo{version} \\
+    geopandas, OSMnx, pyrosm & \todo{versions} \\
+    Random seed & \todo{value from \code{config.py}} \\
+    Census / IRIS / URSSAF / OSM vintage & \todo{dates} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Additional tables and figures}
+\todo{Extra tables that do not fit in the main text, e.g.\ the full list of municipalities with their statistics.}

@@ -1,0 +1,58 @@
+\section{Routing (Exercise 3.2)}\label{sec:routing}
+\noindent Responsible: Person B. Notebook: \code{notebooks/B3\_routing.ipynb}.
+
+\subsection{Road network from OpenStreetMap (2 points)}
+
+\paragraph{Method.}
+\todo{Describe the OpenStreetMap extract \cite{geofabrik-osm} (region file, date), how it was cropped to the study area
+(e.g.\ with osmium-tool and a buffered boundary), how the road network was extracted and converted into a routable
+graph (pyrosm \cite{pyrosm} or OSMnx \cite{osmnx}; network type, edge attributes used as routing weight, e.g.\ length
+or travel time, handling of one-way streets and of the largest connected component), and the number of nodes and edges
+(\cref{tab:network-stats}).}
+
+\begin{table}[H]
+  \centering
+  \caption{\todo{Caption: size of the routing network.}}
+  \label{tab:network-stats}
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    Quantity & Value \\
+    \midrule
+    Nodes & \todo{value} \\
+    Edges & \todo{value} \\
+    Total length [km] & \todo{value} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{network_map}
+  \caption{\todo{Caption: road network of the study area.}}
+  \label{fig:network-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe \cref{fig:network-map}.}
+
+\subsection{Routing of the trips and flow per link (2 points)}
+
+\paragraph{Method.}
+\todo{Describe how origin and destination coordinates are mapped to the nearest network node (CRS, distance of the snap),
+which shortest-path algorithm and weight are used, how the number of trips traversing each edge is counted, how trips
+without a path are handled, and the runtime.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{edge_flows_map}
+  \caption{\todo{Caption: number of trips per network link.}}
+  \label{fig:edge-flows-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Report the number of routed trips, trips without a route, and the most loaded links, and comment on
+\cref{fig:edge-flows-map} (major roads, bottlenecks, bridges, effect of the border of the study area).}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ the extract is larger than the study area, unreachable nodes, long runtimes,
+memory, the network ends at the border of the department although trips cross it.}

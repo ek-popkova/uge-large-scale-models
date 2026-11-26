@@ -1,0 +1,36 @@
+\section{Discussion}\label{sec:discussion}
+
+\subsection{Limitations}
+\todo{Discuss the main modelling limitations: a single trip-purpose model with one growth factor per SPC and no mode
+choice; trips limited to the study area through the 70\,\% rule; friction with fixed parameters instead of estimated
+ones; centroid-to-centroid distances and intra-zonal distance zero; employment taken from private-sector URSSAF data
+only; municipalities as zones; random coordinates uniform in the zone; shortest paths without congestion.}
+
+\subsection{Consistency checks across the pipeline}
+\todo{Document the checks: $\sum_i \Oprime = \sum_j \Dj = N$; row and column sums of $\Fij$ match $\Oprime$ and $\Dj$;
+number of sampled trips per zone pair versus $\Fij$; every sampled trip is routed; municipality identifiers are
+identical in all hand-off files.}
+
+\begin{table}[H]
+  \centering
+  \caption{\todo{Caption: consistency checks along the pipeline.}}
+  \label{tab:consistency-checks}
+  \begin{tabular}{@{}llr@{}}
+    \toprule
+    Check & Expected & Observed \\
+    \midrule
+    $\sum_i \Oprime$ versus $\sum_j \Dj$ & equal & \todo{value} \\
+    $\sum_j \Fij$ versus $\Oprime$ (max.\ deviation) & $\approx 0$ & \todo{value} \\
+    $\sum_i \Fij$ versus $\Dj$ (max.\ deviation) & $\approx 0$ & \todo{value} \\
+    Routed trips versus generated trips & equal & \todo{value} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Overview of the problems encountered}
+\todo{Summarise the problems documented at the end of each exercise (\cref{sec:study-area,sec:territorial-I,sec:territorial-II,sec:trip-production,sec:trip-attraction,sec:trip-distribution,sec:disaggregation,sec:routing}),
+how they were solved and what remains open. The assignment gives partial points for documented problems.}
+
+\subsection{Possible extensions}
+\todo{Optional: finer zones (IRIS), estimated friction, mode choice, time-dependent routing, validation against the INSEE
+commuting flows.}

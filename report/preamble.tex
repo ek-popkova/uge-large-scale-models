@@ -1,0 +1,69 @@
+%% ---------------------------------------------------------------------------
+%% Packages, layout and macros. Content lives in chapters/, metadata in main.tex.
+%% ---------------------------------------------------------------------------
+
+%% Fonts and language
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{microtype}
+
+%% Layout
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{indentfirst}
+\usepackage{setspace}
+\onehalfspacing
+\emergencystretch=2em % avoid overfull lines with long names in monospace
+
+%% Math
+\usepackage{amsmath, amssymb, mathtools}
+
+%% Figures and tables
+\usepackage{graphicx}
+\graphicspath{{figures/}} % \includegraphics{age_distribution} -> figures/age_distribution.(pdf|png)
+\usepackage{float}        % [H] placement
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+%% Algorithms and code listings
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  keywordstyle=\color{blue!60!black},
+  commentstyle=\color{gray},
+}
+
+%% Links -- hyperref must be loaded late, cleveref after it
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise, noabbrev]{cleveref} % \cref{fig:x} -> "Figure 1"
+
+%% ---------------------------------------------------------------------------
+%% Macros
+%% ---------------------------------------------------------------------------
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}} % visible placeholder
+\newcommand{\code}[1]{\texttt{#1}}                          % file / identifier names
+
+% Placeholder for a figure that a notebook will write to figures/<name>.pdf.
+% Replace the call by \includegraphics[width=\textwidth]{<name>} once the file exists.
+\newcommand{\figplaceholder}[2][0.9\textwidth]{%
+  \fbox{\parbox[c][5cm][c]{#1}{\centering
+    \todo{figure \texttt{\detokenize{#2}.pdf} not generated yet}}}}
+
+%% Transport-demand notation (all usable in text mode as well)
+\newcommand{\Oi}{\ensuremath{O_i}}                 % trips originating in zone i
+\newcommand{\Dj}{\ensuremath{D_j}}                 % trips arriving in zone j
+\newcommand{\Fij}{\ensuremath{F_{ij}}}             % flow from zone i to zone j
+\newcommand{\dij}{\ensuremath{d_{ij}}}             % centroid distance i -> j [m]
+\newcommand{\rhoij}{\ensuremath{\rho_{ij}}}        % friction term
+\newcommand{\Oprime}{\ensuremath{O'_i}}            % scaled origins (Exercise 2.2)
+\newcommand{\pii}{\ensuremath{p_i}}                % production weighting factor
+\newcommand{\aj}{\ensuremath{a_j}}                 % attraction weighting factor

@@ -1,0 +1,49 @@
+\section{Trip attraction (Exercise 2.2)}\label{sec:trip-attraction}
+\noindent Responsible: Person A. Notebook: \code{notebooks/A4\_trip\_production\_attraction.ipynb}.
+
+\subsection{Total number of trips \texorpdfstring{$N$}{N} and arriving trips per municipality (2 points)}
+
+\paragraph{Method.}
+The number of trips arriving in zone $j$ is proportional to its employment $W_j$:
+\begin{equation}\label{eq:attraction}
+  \Dj = \frac{W_j}{\sum_{j'} W_{j'}}\; N .
+\end{equation}
+Not all commuters generated in \cref{sec:trip-production} stay within the study area, and not all employees come from
+within it. Following the assignment, the total number of trips within the study area is therefore the minimum of
+70\,\% of the total employment and 70\,\% of the originating trips:
+\begin{equation}\label{eq:total-trips-N}
+  N = \min\!\left(0.7 \sum_j W_j,\; 0.7 \sum_i \Oi\right).
+\end{equation}
+The employment $W_j$ is taken from the URSSAF data \cite{urssaf-employment}.
+
+\paragraph{Result.}
+\todo{Report the value of $N$, state which of the two terms in \cref{eq:total-trips-N} is the minimum, and report
+$\sum_j W_j$ and $\sum_i O_i$.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{arrivals_map}
+  \caption{\todo{Caption: number of arriving trips \Dj{} per municipality.}}
+  \label{fig:arrivals-map}
+\end{figure}
+
+\todo{Describe \cref{fig:arrivals-map}.}
+
+\subsection{Scaling the demand \texorpdfstring{$\Oprime$}{O'} (preparation for Exercise 2.3)}
+
+\paragraph{Method.}
+In a balanced model the total number of originating flows must match the total number of arriving flows. The demand of
+\cref{sec:trip-production} is therefore scaled proportionally to the total $N$:
+\begin{equation}\label{eq:scaling}
+  \Oprime = N\, \frac{\Oi}{\sum_{i'} O_{i'}} .
+\end{equation}
+By construction, $\sum_i \Oprime = \sum_j \Dj = N$. These two vectors, together with the municipality geometry, form the
+hand-off file \code{data/processed/zones.parquet} (columns \code{O} and \code{D}).
+
+\paragraph{Result.}
+\todo{Verify and report that $\sum_i \Oprime = \sum_j \Dj = N$ (up to floating-point error), the scaling factor
+$N/\sum_i \Oi$, and list the first rows of \code{zones.parquet} in a table if useful.}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ municipalities with zero employment in the URSSAF data, unmatched codes between URSSAF
+and the municipalities derived from IRIS, how the 70\,\% rule affects the result.}

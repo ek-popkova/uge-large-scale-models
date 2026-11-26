@@ -1,0 +1,53 @@
+\section{Disaggregation (Exercise 3.1)}\label{sec:disaggregation}
+\noindent Responsible: Person B. Notebook: \code{notebooks/B2\_disaggregation.ipynb}.
+
+\subsection{Individual trips and map of origin--destination lines (2 points)}
+
+\paragraph{Method.}
+The flow matrix $\Fij$ of \cref{sec:trip-distribution} is converted into a probability matrix
+\begin{equation}\label{eq:probability-matrix}
+  P_{ij} = \frac{\Fij}{\sum_{i'}\sum_{j'} F_{i'j'}}, \qquad \sum_{i,j} P_{ij} = 1,
+\end{equation}
+from which $n$ origin--destination pairs are sampled with replacement, with $n \ge 10\,000$. For each pair, a random
+origin coordinate and a random destination coordinate are drawn from within the respective zones. The departure time of
+each trip is sampled as described in the next subsection.
+\todo{State $n$, the random seed (from \code{lsm.config}), how random points inside a polygon are drawn (e.g.\ rejection
+sampling in the bounding box) and whether the sampled coordinates are drawn uniformly in the municipality or restricted
+(e.g.\ to built-up areas).}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{trips_map}
+  \caption{\todo{Caption: generated trips drawn as lines from origin to destination.}}
+  \label{fig:trips-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe \cref{fig:trips-map}. Check that the sampled origin--destination counts per zone pair are consistent
+with $\Fij$ (e.g.\ correlation or relative error of the aggregated sample against \cref{eq:probability-matrix}).}
+
+\subsection{Distribution of the departure times (1 point)}
+
+\paragraph{Method.}
+The departure time $T$ (in seconds after midnight) of each trip is drawn from a normal distribution,
+\begin{equation}\label{eq:departure-time}
+  T \sim \mathcal{N}\!\left(\mu,\, \sigma^{2}\right), \qquad \sigma = 3600\,\mathrm{s},
+\end{equation}
+and samples with $T < 0$ are reset to $0$.
+\todo{Fill in $\mu$ from the assignment PDF: the text export reads ``83600'' for the mean, which looks like a lost
+multiplication sign, i.e.\ $8 \cdot 3600 = 28\,800$\,s (08:00). Check and document, and state the share of samples
+that were reset to zero.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{departure_hist}
+  \caption{\todo{Caption: distribution of departure times (histogram or CDF).}}
+  \label{fig:departure-hist}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe \cref{fig:departure-hist} (peak, spread, share reset to zero, time axis in hours).}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ sampling coordinates in non-convex or multi-part polygons, runtime, a spike at zero
+caused by the clipping, trips with identical origin and destination zone.}

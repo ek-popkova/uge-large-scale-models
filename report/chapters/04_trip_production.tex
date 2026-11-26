@@ -1,0 +1,75 @@
+\section{Trip production (Exercise 2.1)}\label{sec:trip-production}
+\noindent Responsible: Person A. Notebook: \code{notebooks/A4\_trip\_production\_attraction.ipynb}.
+
+\subsection{Trip generation model and total number of trips (1 point)}
+
+\paragraph{Method.}
+The number of originating trips of zone $i$ is obtained from the growth-factor model of the assignment, applied to the
+aggregated census \cite{insee-census-aggregated}:
+\begin{equation}\label{eq:trip-generation}
+  \Oi = \max\!\left(\beta_0 + \sum_{s=1}^{8} \beta_s\, n_{i,s},\; 0\right),
+\end{equation}
+where $s$ indexes the socio-professional category (SPC), $\beta_s$ is the growth factor of SPC $s$, and $n_{i,s}$ is the
+size of the population older than 15 years with SPC $s$ in zone $i$. The offset $\beta_0$ is added \emph{once per
+zone}, not once per SPC. The parameters are given in \cref{tab:trip-generation-parameters}. The total number of
+generated trips is
+\begin{equation}\label{eq:total-origins}
+  O = \sum_i \Oi .
+\end{equation}
+
+\begin{table}[H]
+  \centering
+  \caption{Trip generation model parameters (Table~1 of the assignment).}
+  \label{tab:trip-generation-parameters}
+  \begin{tabular}{@{}clr@{}}
+    \toprule
+    Parameter & SPC (\emph{cat\'egorie socioprofessionnelle}) & Value \\
+    \midrule
+    $\beta_0$ & Model offset & $27.244$ \\
+    $\beta_1$ & Agriculteurs exploitants & $0.319$ \\
+    $\beta_2$ & Artisans, commer\c{c}ants et chefs d'entreprise & $0.994$ \\
+    $\beta_3$ & Cadres et professions intellectuelles sup\'erieures & $0.863$ \\
+    $\beta_4$ & Professions interm\'ediaires & $0.990$ \\
+    $\beta_5$ & Employ\'es & $0.780$ \\
+    $\beta_6$ & Ouvriers & $0.708$ \\
+    $\beta_7$ & Retrait\'es & $0.120$ \\
+    $\beta_8$ & Autres personnes sans activit\'e professionnelle & $-0.073$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\todo{State the zone on which \cref{eq:trip-generation} is evaluated (IRIS, as the aggregated census is available at IRIS
+level and the assignment asks for a map per IRIS, or municipality). Because of the offset $\beta_0$ and the $\max$,
+the total depends on this choice: justify it, and describe how IRIS values are aggregated to municipalities. Describe
+how $n_{i,s}$ is read from the aggregated file and how municipality and IRIS codes were joined.}
+
+\paragraph{Result.}
+\todo{Report the total number of generated trips $O$ and, if useful, how many zones are clipped at zero by the $\max$.}
+
+\subsection{Trips per SPC and map of trips per IRIS (1 point)}
+
+\paragraph{Method.}
+\todo{Describe how the trips per SPC are obtained (contribution $\beta_s \sum_i n_{i,s}$ per SPC, and how the offset is
+shown or attributed in the bar plot) and how the total per IRIS is mapped.}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{trips_per_spc}
+  \caption{\todo{Caption: number of generated trips per SPC in the study area.}}
+  \label{fig:trips-per-spc}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \figplaceholder{trips_per_iris_map}
+  \caption{\todo{Caption: total number of generated trips per IRIS.}}
+  \label{fig:trips-per-iris-map}
+\end{figure}
+
+\paragraph{Result.}
+\todo{Describe \cref{fig:trips-per-spc} and \cref{fig:trips-per-iris-map}: which SPCs generate most trips and where the
+trip-generating areas are.}
+
+\paragraph{Problems encountered.}
+\todo{Document problems, e.g.\ the offset (added once, not once per SPC), IRIS without population, negative values
+clipped by the $\max$, code mismatches between IRIS in the census and in the IGN boundaries.}

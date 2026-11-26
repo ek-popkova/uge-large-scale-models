@@ -1,0 +1,23 @@
+# Conda environment for the "Large-scale models" course project.
+# Based on the course environment (course-uge/environment.yml); major versions only.
+#   conda env create -f environment.yml
+#   conda activate lsm
+name: lsm
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - jupyter=1
+  - numpy=1
+  - pandas=2
+  - geopandas>=1.0
+  - pyarrow=14
+  - matplotlib-base=3
+  - plotly=5
+  - scikit-learn=1
+  - osmnx=1
+  - pyrosm=0.6
+  - osmium-tool=1
+  - tqdm=4
+  - pytest=8
