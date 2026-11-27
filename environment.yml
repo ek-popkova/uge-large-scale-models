@@ -1,23 +1,30 @@
 # Conda environment for the "Large-scale models" course project.
-# Based on the course environment (course-uge/environment.yml); major versions only.
+# Pinned (major.minor) to the versions the notebooks of Part 1 (ex11, ex12, ex13) were executed with;
+# checked on 2026-11-28 by creating the environment from this file (conda-forge, win-64) and re-running
+# ex11-ex13 from a fresh kernel with identical results.
 #   conda env create -f environment.yml
 #   conda activate lsm
 name: lsm
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.13
   - pip
   - jupyter=1
-  - numpy=1
-  - pandas=2
-  - geopandas>=1.1        # dissolve(method="coverage"), simplify_coverage (ex11)
-  - shapely>=2.1
-  - pyarrow=14
-  - matplotlib-base=3
-  - plotly=5
-  - scikit-learn=1
-  - osmnx=1
-  - pyrosm=0.6
+  - ipykernel=7.4
+  - nbconvert=7.17
+  - numpy=2.5
+  - pandas=3.0
+  - geopandas=1.2          # dissolve(method="coverage"), simplify_coverage (ex11)
+  - shapely=2.2
+  - pyogrio=0.13           # GeoPackage / shapefile I/O of geopandas
+  - pyproj=3.8
+  - pyarrow=24.0           # parquet
+  - matplotlib-base=3.11
+  # Parts 2 and 3 (not used by ex11-ex13; versions installed in the same environment)
+  - plotly=7.1
+  - scikit-learn=1.9
+  - osmnx=2.2
+  - pyrosm=0.29
   - osmium-tool=1
-  - tqdm=4
+  - tqdm=4.70

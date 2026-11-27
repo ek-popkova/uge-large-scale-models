@@ -57,11 +57,11 @@ geography of 1 January 2021. Unless stated otherwise, every file was downloaded 
 \subsection{Tools}
 The analysis is written in Python (geopandas \cite{geopandas}, OSMnx \cite{osmnx}, pyrosm \cite{pyrosm}) in Jupyter
 notebooks; the notebooks are the only code of the project. The report is written in \LaTeX{}.
-The conda environment \code{environment.yml} of the repository pins the major versions: Python 3.11, NumPy~1,
-pandas~2, geopandas $\geq$ 1.1, Shapely $\geq$ 2.1, pyarrow~14, Matplotlib~3, Plotly~5, scikit-learn~1, OSMnx~1,
-pyrosm~0.6, osmium-tool~1 and Jupyter~1. The notebooks of Exercises 1.1--1.3 were executed with Python 3.13.3,
-pandas 3.0.5, NumPy 2.5.2, geopandas 1.2.0, Shapely 2.2.0, pyarrow 24.0.0 and Matplotlib 3.11.2. Commands, versions and
-seeds are given in \cref{sec:appendix-reproducibility}.
+The conda environment \code{environment.yml} of the repository (channel conda-forge) pins the versions the notebooks
+were executed with: Python 3.13, NumPy 2.5, pandas 3.0, geopandas 1.2, Shapely 2.2, pyogrio 0.13, pyproj 3.8,
+pyarrow 24.0, Matplotlib 3.11, ipykernel 7.4 and nbconvert 7.17, and, for Parts 2 and 3, Plotly 7.1,
+scikit-learn 1.9, OSMnx 2.2, pyrosm 0.29, osmium-tool~1 and tqdm 4.70. Commands, versions and seeds are given in
+\cref{sec:appendix-reproducibility}.
 
 \subsection{Team split}
 \Cref{tab:team-split} summarises who is responsible for which exercise. The only interface between the two parts is the
