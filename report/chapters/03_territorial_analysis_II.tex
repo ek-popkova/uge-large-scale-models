@@ -25,10 +25,16 @@ values per IRIS are summed to municipalities. They are weighted counts from the 
 of the census, so they are not integers.
 
 The SPC classifies persons by ``la profession (ou l'ancienne profession)''~\cite{insee-rp-definitions}. SPC 1--6
-therefore count the \emph{active} population by occupation, and presumably include unemployed persons who worked
-before, classified by their former occupation. The documentation of the file does not state this rule explicitly. The
-activity status (\code{TACT}) that would separate employed from unemployed persons is not kept in our extract of the
-detailed census. $W^{\mathrm{res}}_i$ is therefore an upper bound of the employed residents.
+therefore count the \emph{active} population by occupation, which may include persons who are not in employment. We
+measured this in the detailed census, which comes from the same exploitation as the SPC counts. We cross-tabulated
+SPC and activity status (\code{TACT}) for the persons aged 15 and over of the department, with weights. Of the persons
+in SPC 1--6, \textbf{88.9\,\% are employed and 11.1\,\% unemployed}. No other activity status occurs, and every
+employed person is in SPC 1--6. Unemployed persons who never worked are in SPC~8. The department has 277{,}131
+employed persons aged 15 and over. We keep the definition above, because the exercise asks for the aggregated census
+per municipality, which has no activity status. $W^{\mathrm{res}}_i$ therefore exceeds the employed residents by
+12.5\,\% at department level, and the unemployed share differs between municipalities. This difference is small
+compared with the gap between the census and URSSAF, which covers only 58\,\% of the working inhabitants
+(\cref{sec:territorial-II-difference}).
 
 \begin{figure}[H]
   \centering
@@ -94,7 +100,7 @@ municipality has 16 employees. Next to the towns, the list contains employment z
 places of residence: Mondeville (10{,}500 employees, third), Carpiquet (airport, 3{,}824), Saint-Contest, Verson and
 Rots.
 
-\subsection{Difference between working inhabitants and employees (1 point)}
+\subsection{Difference between working inhabitants and employees (1 point)}\label{sec:territorial-II-difference}
 
 \paragraph{Method.}
 For each municipality we compute $\Delta_i = W^{\mathrm{res}}_i - E_i$, working inhabitants minus employees. A
@@ -105,8 +111,8 @@ the scale is a symmetric logarithm: linear within $\pm 100$ persons and logarith
 
 \paragraph{Comparability.}
 The two sources do not measure the same thing. The census counts all working residents, at their place of residence:
-the public sector, the self-employed and farmers, and probably unemployed persons with a former occupation. URSSAF
-counts private salaried jobs, at the place of work. The totals are 311{,}886 working inhabitants and 180{,}618
+the public sector, the self-employed and farmers, and unemployed persons with a former occupation (11.1\,\% of SPC
+1--6). URSSAF counts private salaried jobs, at the place of work. The totals are 311{,}886 working inhabitants and 180{,}618
 employees: URSSAF covers only \textbf{58\,\%} of the census count (ratio 0.579). The raw difference is therefore
 positive in 505 of the 528 municipalities and sums to $+131{,}268$. As an additional view, we scale the employees to
 the total of working inhabitants, $\tilde E_i = E_i \cdot \sum_k W^{\mathrm{res}}_k / \sum_k E_k$ (factor 1.727). The
@@ -193,9 +199,11 @@ trip attraction in \cref{sec:trip-attraction}.
 
 \paragraph{Problems encountered.}
 \begin{itemize}
-  \item \emph{Definition of working inhabitants.} The aggregated census has no count of employed persons. SPC 1--6
-  classify persons by current or former occupation and probably include unemployed persons who worked before. The
-  activity status is not in our census extract, so the number of employed residents cannot be separated.
+  \item \emph{Definition of working inhabitants.} The aggregated census has no count of employed persons, and SPC
+  1--6 also classify persons by a former occupation. Measured in the detailed census (SPC $\times$ \code{TACT}),
+  88.9\,\% of the persons in SPC 1--6 are employed and 11.1\,\% unemployed, so $W^{\mathrm{res}}_i$ exceeds the
+  employed residents by 12.5\,\%. This is small compared with the gap between census and URSSAF: URSSAF counts 58\,\%
+  of the working inhabitants and still only 65\,\% of the 277{,}131 employed persons.
   \item \emph{Different municipality geography.} URSSAF uses the current geography, the project that of 2021: one
   change of code (Aurseulles) and two mergers on 1 January 2025 (Saint-Martin-de-Fontenay into Saint-Martin-de-May,
   Gerrots into Victot-en-Auge). Codes were recoded with the INSEE list of changes~\cite{insee-cog-2026}. The merged

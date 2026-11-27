@@ -70,7 +70,7 @@ Run in this order (each notebook states what it reads and writes):
 | `ex32_routing` | 3.2 | B |
 
 Individual census data: every notebook that needs it reads `data/processed/census_14.parquet` (written by ex11;
-`age` = `AGEREV`, age in completed years; `age_aged` = `AGED`, comparison only) and never the raw census CSV.
+`age` = `AGEREV`, age in completed years; `age_aged` = `AGED`, comparison only; `activity` = `TACT`, activity status) and never the raw census CSV.
 
 ## Figures → report
 
