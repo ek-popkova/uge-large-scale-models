@@ -197,6 +197,112 @@ to 59. The scaled view assumes that the jobs URSSAF does not count are distribut
 not exact either, but it is the more meaningful answer to the question. It is also the assumption used for the
 trip attraction in \cref{sec:trip-attraction}.
 
+\subsection{Validation with commuting data}\label{sec:territorial-II-mobpro}
+
+\paragraph{Data.}
+INSEE's commuting file MOBPRO~\cite{insee-mobpro-2019} gives, for every employed person of the census RP2019, the
+municipality of residence (\code{COMMUNE}) and the municipality of work (\code{DCLT}), with the weight \code{IPONDI}.
+Unlike URSSAF, it covers \emph{all} jobs, including the public sector, the self-employed and farmers. It uses the same
+year (2019) and the same geography (2021) as our census. It is therefore the real-data reference for the net commuting
+balance of each municipality. As in the course notebook, we read \code{COMMUNE}, \code{ARM}, \code{DCLT},
+\code{IPONDI} and \code{TRANS} in chunks. We keep every person who lives \emph{or} works in Calvados, so that commuters
+from and to other departments are included. All department codes in the file are among our 528 municipalities. Every
+municipality has employed residents, and 7 small municipalities have no job. For each municipality $i$ we compute
+the employed residents $R_i$ (living in $i$), the jobs $J_i$ (working in $i$, wherever the person lives) and the net
+balance $N_i = R_i - J_i$, with the same sign convention as $\Delta_i$. This is a validation only: the answers above
+remain those based on the census and URSSAF, as the exercise asks.
+
+\begin{table}[H]
+  \centering
+  \caption{Department totals of Calvados, 2019. The census counts are at the place of residence, the job counts at
+  the place of work. Data: INSEE~\cite{insee-census-aggregated,insee-census-detailed,insee-mobpro-2019},
+  URSSAF~\cite{urssaf-employment}.}
+  \label{tab:mobpro-totals}
+  \begin{tabular}{@{}llr@{}}
+    \toprule
+    Quantity & Counted at & Persons \\
+    \midrule
+    Census: working inhabitants $W^{\mathrm{res}}$ (aged 15+, SPC 1--6) & residence & 311{,}886 \\
+    Census: employed persons aged 15+ (\code{TACT} $=$ 11) & residence & 277{,}131 \\
+    MOBPRO: employed residents $R$ & residence & 277{,}131 \\
+    MOBPRO: jobs located in Calvados $J$ & workplace & 275{,}908 \\
+    URSSAF: private-sector salaried employees $E$ & workplace & 180{,}618 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Totals.}
+MOBPRO counts exactly the employed persons of the detailed census (\cref{tab:mobpro-totals}), because both are the
+same census records with the same weights. The working inhabitants are 12.5\,\% higher, as measured in
+\cref{sec:territorial-II} with \code{TACT}. Per municipality, $W^{\mathrm{res}}_i$ and $R_i$ correlate at 0.9997, and
+the median ratio is 1.09. The SPC definition therefore shifts the level but hardly changes the pattern. 30.0\,\% of
+the employed residents work in their own municipality. 21{,}882 residents (7.9\,\%) work outside Calvados, mainly in
+Manche, Orne, Seine-Maritime, Eure and Paris. 20{,}659 persons living outside work in Calvados, mainly from Manche,
+Eure and Orne. Calvados is therefore almost balanced: 1{,}223 more residents commute out than workers commute in.
+
+\paragraph{Jobs not counted by URSSAF.}
+URSSAF covers 65.5\,\% of the 275{,}908 jobs located in Calvados. Of the 95{,}290 jobs that URSSAF misses, 40\,\%
+are in Caen, which has 73{,}271 jobs but only 35{,}246 URSSAF employees (coverage 48\,\%: university, regional
+hospital, administrations). Next come Lisieux (5{,}215 jobs missed), Bayeux (3{,}817), Falaise and Vire Normandie,
+towns with hospitals, schools and sub-prefectures. This confirms the explanation given for Caen in
+\cref{sec:territorial-II-difference}. In 38 municipalities, URSSAF has \emph{more} employees than MOBPRO has jobs,
+mostly commercial and industrial zones around Caen (Mondeville $+666$, Bretteville-sur-Odon $+607$). URSSAF counts job
+positions at 31 December: persons with two jobs count twice, and temporary workers count where the agency is. MOBPRO
+counts persons at the place of their main job.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{net_commuting_mobpro_map}
+  \caption{Net commuting according to MOBPRO, employed residents minus jobs, per municipality. Red: net outflow;
+  blue: net inflow. Same colour scale as \cref{fig:net-flow-map} (symmetric logarithm, linear within $\pm 100$), with
+  symmetric limits $\pm 34{,}644$. Data: INSEE MOBPRO RP2019~\cite{insee-mobpro-2019}, IGN CONTOURS-IRIS
+  2021~\cite{ign-contours-iris}; Lambert-93.}
+  \label{fig:net-commuting-mobpro}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{difference_vs_mobpro}
+  \caption{Raw difference $\Delta_i$ (blue) and scaled difference $\tilde\Delta_i$ (orange) of each municipality
+  against the net commuting $N_i$ of MOBPRO. Both axes use a symmetric logarithm, linear within $\pm 100$. Points on
+  the dashed line agree exactly. Data: as in \cref{fig:net-flow-map,fig:net-commuting-mobpro}.}
+  \label{fig:difference-vs-mobpro}
+\end{figure}
+
+\paragraph{Net commuting.}
+According to MOBPRO (\cref{fig:net-commuting-mobpro}), the \textbf{largest net inflow is Caen} (14118): 38{,}627
+employed residents, 73{,}271 jobs, $N = -34{,}644$. Next come Lisieux ($-6{,}749$), Mondeville ($-5{,}785$), Vire
+Normandie ($-4{,}837$) and H\'erouville-Saint-Clair ($-4{,}465$). The \textbf{largest net outflow is Souleuvre en
+Bocage} (14061; $+2{,}199$), followed by Thue et Mue ($+2{,}020$) and M\'ezidon Vall\'ee d'Auge ($+2{,}009$).
+54 municipalities have a net inflow (raw view: 23, scaled view: 59). Both extremes are the answers of the
+\emph{scaled} view, while the raw view gives Caen the wrong sign. \Cref{tab:mobpro-agreement} and
+\cref{fig:difference-vs-mobpro} show that \textbf{the scaled view is closer to reality} on every measure. Its
+magnitudes are still wrong where the mix of jobs is unusual. It finds less than half of Caen's real inflow
+($-15{,}179$ against $-34{,}644$) and more than twice the inflow of Mondeville ($-13{,}525$ against $-5{,}785$).
+For Mondeville the raw value ($-5{,}894$) is almost exact. Scaling assumes that every municipality has the
+department's share of private jobs, which does not hold for an administrative centre or a private employment zone.
+
+\begin{table}[H]
+  \centering
+  \caption{Agreement of the raw difference $\Delta_i$ and the scaled difference $\tilde\Delta_i$ with the net
+  commuting $N_i$ of MOBPRO, over the 528 municipalities.}
+  \label{tab:mobpro-agreement}
+  \begin{tabular}{@{}lrr@{}}
+    \toprule
+    Measure & Raw $\Delta_i$ & Scaled $\tilde\Delta_i$ \\
+    \midrule
+    Pearson correlation & $-0.40$ & 0.78 \\
+    Pearson correlation without Caen & 0.68 & 0.90 \\
+    Spearman rank correlation & 0.82 & 0.87 \\
+    Municipalities with the same sign as $N_i$ & 94.1\,\% & 95.6\,\% \\
+    Mean absolute deviation from $N_i$ (persons) & 258 & 208 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The table of origin--destination flows with both ends in Calvados (255{,}249 persons in 9{,}866 pairs of
+municipalities, summed over the modes) is saved for the validation of the gravity model in \cref{sec:trip-distribution}.
+
 \paragraph{Problems encountered.}
 \begin{itemize}
   \item \emph{Definition of working inhabitants.} The aggregated census has no count of employed persons, and SPC

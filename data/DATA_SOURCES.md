@@ -68,6 +68,11 @@ is UTF-8 encoded and its `.prj` (IGNF:LAMB93) is the same CRS as EPSG:2154.
 | `etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last_dep14.csv` (+ `_metadata.json` with the edition) | URSSAF export restricted to Calvados: <https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B&refine=code_departement%3A14>; dataset modified 2026-05-29, years 2006–2025 |
 | `v_mvt_commune_2026.csv` | INSEE COG 2026, changes of municipalities: <https://www.insee.fr/fr/statistiques/fichier/8740222/v_mvt_commune_2026.csv> |
 
+| `FD_MOBPRO_2019.csv` (~790 MB), `Varmod_MOBPRO_2019.csv` | INSEE MOBPRO RP2019 (commuting, residence → workplace, geography 2021): <https://www.insee.fr/fr/statistiques/fichier/6456056/RP2019_mobpro_csv.zip>; the validation section of `ex13` downloads and unpacks it if missing |
+
+MOBPRO notes: read `COMMUNE`, `ARM`, `DCLT` as `str` (replace `COMMUNE` by `ARM` when `ARM != "ZZZZZ"`, Paris/Lyon/
+Marseille); `DCLT = 99999` means working abroad. For Calvados every code matches the 528 municipalities of 2021.
+
 URSSAF pitfall: the `-last` edition uses the **current** municipality geography, not that of 2021 (IGN CONTOURS-IRIS
 2021 / RP2019). For Calvados: Aurseulles 14011 → 14581 (2024), Saint-Martin-de-Fontenay 14623 → 14408 and
 Gerrots 14300 → 14743 (mergers, 2025). `ex13` recodes them with the COG file.
