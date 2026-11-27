@@ -60,3 +60,14 @@ is UTF-8 encoded and its `.prj` (IGNF:LAMB93) is the same CRS as EPSG:2154.
   checks both.
 - **Departure time.** `T ~ N(μ, σ = 3600 s)`: the assignment text reads μ = "83600", which looks like a lost
   multiplication sign (8·3600 = 28 800 s, 08:00). The setup cell of ex31 uses `8 * 3600`; confirm in the PDF.
+
+## Downloaded for Exercise 1.3 (2026-11-27, by the notebook `ex13`)
+
+| File in `data/raw/` | Source |
+|---|---|
+| `etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last_dep14.csv` (+ `_metadata.json` with the edition) | URSSAF export restricted to Calvados: <https://open.urssaf.fr/api/explore/v2.1/catalog/datasets/etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last/exports/csv?lang=fr&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B&refine=code_departement%3A14>; dataset modified 2026-05-29, years 2006–2025 |
+| `v_mvt_commune_2026.csv` | INSEE COG 2026, changes of municipalities: <https://www.insee.fr/fr/statistiques/fichier/8740222/v_mvt_commune_2026.csv> |
+
+URSSAF pitfall: the `-last` edition uses the **current** municipality geography, not that of 2021 (IGN CONTOURS-IRIS
+2021 / RP2019). For Calvados: Aurseulles 14011 → 14581 (2024), Saint-Martin-de-Fontenay 14623 → 14408 and
+Gerrots 14300 → 14743 (mergers, 2025). `ex13` recodes them with the COG file.

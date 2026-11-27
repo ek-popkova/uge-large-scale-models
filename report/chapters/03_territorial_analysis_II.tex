@@ -1,56 +1,209 @@
 \section{Territorial analysis II (Exercise 1.3)}\label{sec:territorial-II}
 \noindent Responsible: Person A. Notebook: \code{notebooks/ex13\_territorial\_analysis\_II.ipynb}.
 
+\paragraph{Data sources.}
+Working inhabitants come from the aggregated census by IRIS RP2019~\cite{insee-census-aggregated}, already aggregated
+to the 528 municipalities in \cref{sec:territorial-I}. Employees come from the URSSAF open data set of private-sector
+employers and salaried employees per municipality and activity sector (APE)~\cite{urssaf-employment}, latest edition
+(dataset last modified on 29 May 2026, years 2006--2025), downloaded on 27 November 2026. We use the year
+\textbf{2019}, the year of the census, so that both sources describe the same year.
+
 \subsection{Working inhabitants per municipality (1 point)}
 
 \paragraph{Method.}
-\todo{Explain exactly how working inhabitants are counted from the aggregated census \cite{insee-census-aggregated}:
-which columns are summed (e.g.\ population older than 15 in the SPCs of active persons) and which are excluded
-(retired, others without professional activity), and aggregation from IRIS to municipality.}
+The aggregated census does not count employed persons directly. It gives the population aged 15 and over in eight
+socio-professional categories (SPC). As in the trip production model of \cref{sec:trip-production}, the
+\emph{working inhabitants} of municipality $i$ are the persons aged 15 and over in the six SPCs of the working
+population:
+\begin{equation*}
+  W^{\mathrm{res}}_i = \code{C19\_POP15P\_CS1} + \code{C19\_POP15P\_CS2} + \dots + \code{C19\_POP15P\_CS6},
+\end{equation*}
+i.e.\ agriculteurs exploitants; artisans, commer\c{c}ants and chefs d'entreprise; cadres and professions
+intellectuelles sup\'erieures; professions interm\'ediaires; employ\'es; and ouvriers. SPC~7 (retrait\'es) and SPC~8
+(autres personnes sans activit\'e professionnelle, mostly pupils, students and persons at home) are excluded. The
+values per IRIS are summed to municipalities. They are weighted counts from the \emph{exploitation compl\'ementaire}
+of the census, so they are not integers.
+
+The SPC classifies persons by ``la profession (ou l'ancienne profession)''~\cite{insee-rp-definitions}. SPC 1--6
+therefore count the \emph{active} population by occupation, and presumably include unemployed persons who worked
+before, classified by their former occupation. The documentation of the file does not state this rule explicitly. The
+activity status (\code{TACT}) that would separate employed from unemployed persons is not kept in our extract of the
+detailed census. $W^{\mathrm{res}}_i$ is therefore an upper bound of the employed residents.
 
 \begin{figure}[H]
   \centering
-  \figplaceholder{working_inhabitants_bar}
-  \caption{\todo{Caption: number of working inhabitants per municipality.}}
+  \includegraphics[width=0.85\textwidth]{working_inhabitants_top30}
+  \caption{Working inhabitants (persons aged 15 and over in SPC 1--6) of the 30 municipalities of Calvados with the
+  most working inhabitants. All 528 municipalities: \cref{fig:working-inhabitants-all} in the appendix. Data:
+  INSEE RP2019, aggregated census by IRIS~\cite{insee-census-aggregated}.}
   \label{fig:working-inhabitants}
 \end{figure}
 
 \paragraph{Result.}
-\todo{Comment on \cref{fig:working-inhabitants}: the largest municipalities, the total number of working inhabitants.}
+Calvados has \textbf{311{,}886 working inhabitants}: 54.1\,\% of the 576{,}234 persons aged 15 and over and 44.9\,\%
+of the population. The weighted count of persons aged 15+ with SPC 1--6 in the detailed census gives the same total,
+because both come from the same exploitation. \Cref{fig:working-inhabitants} shows the 30 largest municipalities.
+Caen dominates with 45{,}682 working inhabitants (14.6\,\% of the department), followed by its suburb
+H\'erouville-Saint-Clair (9{,}915) and the three other towns Lisieux (8{,}381), Vire Normandie (6{,}821) and Bayeux
+(5{,}446). The top 30 municipalities hold 47.3\,\% of all working inhabitants. The median municipality has only 202
+working inhabitants, and the smallest (Rapilly) has 10. A bar plot of all 528 municipalities, sorted, is in the
+appendix (\cref{fig:working-inhabitants-all}).
 
 \subsection{Employees per municipality (1 point)}
 
 \paragraph{Method.}
-\todo{Describe the URSSAF export \cite{urssaf-employment}: columns used, aggregation over APE codes, municipality
-codes, treatment of municipalities missing from the file (zero or not reported?), and what the figure covers
-(private-sector salaried employment only).}
+The URSSAF file has one row per municipality and APE code with the number of establishments and of salaried employees
+at 31 December of each year. As in the course notebook, we read \code{Code commune} as a string, keep the department
+(CSV export with the filter \code{code\_departement:14}: 16{,}301 rows), and sum \code{Effectifs salari\'es 2019} over
+all APE codes. Empty values are counted as 0. Of the 7{,}480 empty values, 7{,}476 belong to sectors without any
+establishment in the municipality in 2019, and 4 to rows with one establishment but no count.
+
+URSSAF uses the current geography of municipalities, while the project uses the 528 municipalities of 2021. The changes
+since 1 January 2021 are taken from the INSEE list of changes of municipalities~\cite{insee-cog-2026}. Three of our
+municipalities are affected:
+\begin{itemize}
+  \item Aurseulles changed its code from 14011 to 14581 (24 April 2024, new chef-lieu). We relabel it.
+  \item Saint-Martin-de-Fontenay (14623) merged with May-sur-Orne (14408) into Saint-Martin-de-May (14408) on 1 January
+  2025, with 406 employees in 2019.
+  \item Gerrots (14300) merged into Victot-en-Auge (14743) on 1 January 2025, with 12 employees in 2019.
+\end{itemize}
+URSSAF reports only the totals of the merged municipalities. We split each total between the 2021 municipalities in
+proportion to their working inhabitants. This is an assumption, and the split affects 418 employees. After recoding,
+every URSSAF row is matched, and the department total is preserved. Ten small municipalities (48 to 216 inhabitants)
+have no URSSAF row at all. They get \textbf{0 employees}, which means no private establishment with employees. In
+total, 55 municipalities have 0 employees in 2019.
+
+\emph{Scope.} URSSAF counts \emph{private-sector salaried employees at their place of work}. Not included are the
+public sector (State, local authorities, public hospitals), the self-employed, and farmers and agricultural employees,
+who are covered by the MSA.
 
 \begin{figure}[H]
   \centering
-  \figplaceholder{employees_bar}
-  \caption{\todo{Caption: number of employees per municipality (URSSAF).}}
+  \includegraphics[width=0.85\textwidth]{employees_top30}
+  \caption{Private-sector salaried employees at 31 December 2019 of the 30 municipalities of Calvados with the most
+  employees, summed over all APE codes. All 528 municipalities: \cref{fig:employees-all} in the appendix. Data:
+  URSSAF~\cite{urssaf-employment}.}
   \label{fig:employees}
 \end{figure}
 
 \paragraph{Result.}
-\todo{Comment on \cref{fig:employees} and report the total number of employees.}
+URSSAF counts \textbf{180{,}618 private-sector salaried employees in Calvados in 2019}. Employment is much more
+concentrated than residence (\cref{fig:employees}). Caen has 35{,}246 employees (19.5\,\% of the department), and the
+top 30 municipalities hold 75.5\,\% of all employees, against 47.3\,\% of the working inhabitants. The median
+municipality has 16 employees. Next to the towns, the list contains employment zones around Caen that are small as
+places of residence: Mondeville (10{,}500 employees, third), Carpiquet (airport, 3{,}824), Saint-Contest, Verson and
+Rots.
 
 \subsection{Difference between working inhabitants and employees (1 point)}
 
 \paragraph{Method.}
-\todo{Define the difference $\text{working inhabitants} - \text{employees}$ per municipality and describe the map.}
+For each municipality we compute $\Delta_i = W^{\mathrm{res}}_i - E_i$, working inhabitants minus employees. A
+positive value means more working residents than jobs, i.e.\ a \emph{net outflow} of commuters. A negative value means
+a \emph{net inflow} of employees. The map (\cref{fig:net-flow-map}) uses a diverging colour scale centred at 0, with
+blue for inflow and red for outflow, and symmetric limits $\pm\max_i|\Delta_i|$. Caen alone reaches $\pm 10^4$, so
+the scale is a symmetric logarithm: linear within $\pm 100$ persons and logarithmic beyond.
+
+\paragraph{Comparability.}
+The two sources do not measure the same thing. The census counts all working residents, at their place of residence:
+the public sector, the self-employed and farmers, and probably unemployed persons with a former occupation. URSSAF
+counts private salaried jobs, at the place of work. The totals are 311{,}886 working inhabitants and 180{,}618
+employees: URSSAF covers only \textbf{58\,\%} of the census count (ratio 0.579). The raw difference is therefore
+positive in 505 of the 528 municipalities and sums to $+131{,}268$. As an additional view, we scale the employees to
+the total of working inhabitants, $\tilde E_i = E_i \cdot \sum_k W^{\mathrm{res}}_k / \sum_k E_k$ (factor 1.727). The
+scaled difference $\tilde\Delta_i = W^{\mathrm{res}}_i - \tilde E_i$ sums to 0 and shows the relative pattern
+(\cref{fig:net-flow-map-scaled}). This is also how employment enters the trip attraction in \cref{sec:trip-attraction}:
+arriving trips are proportional to employment.
 
 \begin{figure}[H]
   \centering
-  \figplaceholder{net_flow_map}
-  \caption{\todo{Caption: difference between working inhabitants and employees per municipality.}}
+  \includegraphics[width=\textwidth]{inhabitants_minus_employees_map}
+  \caption{Working inhabitants (census RP2019, SPC 1--6) minus private-sector salaried employees (URSSAF 2019) per
+  municipality. Red: net outflow; blue: net inflow. Symmetric logarithmic colour scale, linear within $\pm 100$.
+  Circles: largest net outflow and largest net inflow. Data: INSEE~\cite{insee-census-aggregated},
+  URSSAF~\cite{urssaf-employment}, IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris}; Lambert-93.}
   \label{fig:net-flow-map}
 \end{figure}
 
 \paragraph{Result.}
-\todo{Name the municipality with the largest net outflow (inhabitants minus employees) and the one with the largest net
-inflow of employees (\cref{fig:net-flow-map}), and interpret.}
+\begin{itemize}
+  \item \textbf{Largest net outflow: Caen} (14118): 45{,}682 working inhabitants, 35{,}246 employees, difference
+  $+10{,}436$.
+  \item \textbf{Largest net inflow: Mondeville} (14437): 4{,}606 working inhabitants, 10{,}500 employees, difference
+  $-5{,}894$.
+\end{itemize}
+The result for Caen is an effect of the definitions. Caen is the main employment centre of the department, but it
+concentrates the public-sector jobs that URSSAF does not count (university, regional hospital, administrations).
+Its working residents are therefore compared with its private jobs only. Mondeville, with commercial and industrial zones
+east of Caen, has more than twice as many private jobs as working residents.
+
+Only 23 municipalities have a net inflow in the raw view: the employment zones around Caen (Mondeville, Carpiquet,
+Cormelles-le-Royal, H\'erouville-Saint-Clair, Colombelles), Vire Normandie, and the resort Deauville
+(\cref{tab:net-flow-top5}). The largest outflows are Caen and large rural \emph{communes nouvelles} with few private
+jobs (Souleuvre en Bocage, M\'ezidon Vall\'ee d'Auge, Thue et Mue, Valdalli\`ere).
+
+\begin{table}[H]
+  \centering
+  \caption{The five municipalities with the largest net outflow and the five with the largest net inflow, raw
+  difference $\Delta_i$ and scaled difference $\tilde\Delta_i$ (employees $\times\,1.727$). Bold: the answer per view.}
+  \label{tab:net-flow-top5}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}llrrr@{\hspace{1.5em}}llr@{}}
+    \toprule
+    \multicolumn{5}{c}{Raw: $\Delta_i = W^{\mathrm{res}}_i - E_i$} & \multicolumn{3}{c}{Scaled: $\tilde\Delta_i$} \\
+    \cmidrule(r{1.5em}){1-5}\cmidrule{6-8}
+    Code & Municipality & $W^{\mathrm{res}}_i$ & $E_i$ & $\Delta_i$ & Code & Municipality & $\tilde\Delta_i$ \\
+    \midrule
+    \multicolumn{8}{@{}l}{\emph{Largest net outflow}} \\
+    14118 & \textbf{Caen} & 45{,}682 & 35{,}246 & $+$10{,}436 & 14061 & \textbf{Souleuvre en Bocage} & $+$3{,}032 \\
+    14061 & Souleuvre en Bocage & 4{,}171 & 660 & $+$3{,}511 & 14431 & M\'ezidon Vall\'ee d'Auge & $+$2{,}814 \\
+    14431 & M\'ezidon Vall\'ee d'Auge & 4{,}287 & 853 & $+$3{,}434 & 14726 & Valdalli\`ere & $+$1{,}805 \\
+    14098 & Thue et Mue & 3{,}318 & 907 & $+$2{,}411 & 14098 & Thue et Mue & $+$1{,}752 \\
+    14726 & Valdalli\`ere & 2{,}655 & 492 & $+$2{,}163 & 14027 & Les Monts d'Aunay & $+$1{,}561 \\
+    \midrule
+    \multicolumn{8}{@{}l}{\emph{Largest net inflow}} \\
+    14437 & \textbf{Mondeville} & 4{,}606 & 10{,}500 & $-$5{,}894 & 14118 & \textbf{Caen} & $-$15{,}179 \\
+    14137 & Carpiquet & 1{,}495 & 3{,}824 & $-$2{,}329 & 14437 & Mondeville & $-$13{,}525 \\
+    14762 & Vire Normandie & 6{,}821 & 8{,}968 & $-$2{,}147 & 14327 & H\'erouville-Saint-Clair & $-$9{,}283 \\
+    14220 & Deauville & 1{,}283 & 3{,}165 & $-$1{,}882 & 14762 & Vire Normandie & $-$8{,}665 \\
+    14181 & Cormelles-le-Royal & 2{,}042 & 3{,}552 & $-$1{,}510 & 14366 & Lisieux & $-$5{,}913 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{inhabitants_minus_employees_scaled_map}
+  \caption{Working inhabitants minus \emph{scaled} employees, $\tilde\Delta_i = W^{\mathrm{res}}_i - 1.727\,E_i$
+  (employees scaled to the total of working inhabitants). Same colour scale as \cref{fig:net-flow-map}, with
+  symmetric limits $\pm 15{,}179$. Data as in \cref{fig:net-flow-map}.}
+  \label{fig:net-flow-map-scaled}
+\end{figure}
+
+\paragraph{Scaled view.}
+After scaling, the picture matches the urban structure (\cref{fig:net-flow-map-scaled}). \textbf{Caen becomes the
+largest net inflow} ($-15{,}179$), followed by Mondeville, H\'erouville-Saint-Clair, Vire Normandie and Lisieux.
+\textbf{The largest net outflow is Souleuvre en Bocage} (14061; $+3{,}032$), a rural commune nouvelle north-east of Vire.
+36 municipalities change side, all from outflow to inflow. Together they hold 33.7\,\% of the working inhabitants.
+They include Caen, Lisieux, Bayeux, Ifs, Falaise, Condé-en-Normandie and Pont-l'\'Ev\^eque, i.e.\ the towns whose
+private employment is close to their number of working residents. The number of inflow municipalities rises from 23
+to 59. The scaled view assumes that the jobs URSSAF does not count are distributed like private salaried jobs. It is
+not exact either, but it is the more meaningful answer to the question. It is also the assumption used for the
+trip attraction in \cref{sec:trip-attraction}.
 
 \paragraph{Problems encountered.}
-\todo{Document problems, e.g.\ merged municipalities and different code vintages between INSEE and URSSAF, the
-different scope of the two sources (residents versus salaried jobs in the private sector).}
+\begin{itemize}
+  \item \emph{Definition of working inhabitants.} The aggregated census has no count of employed persons. SPC 1--6
+  classify persons by current or former occupation and probably include unemployed persons who worked before. The
+  activity status is not in our census extract, so the number of employed residents cannot be separated.
+  \item \emph{Different municipality geography.} URSSAF uses the current geography, the project that of 2021: one
+  change of code (Aurseulles) and two mergers on 1 January 2025 (Saint-Martin-de-Fontenay into Saint-Martin-de-May,
+  Gerrots into Victot-en-Auge). Codes were recoded with the INSEE list of changes~\cite{insee-cog-2026}. The merged
+  totals (418 employees) were split in proportion to working inhabitants.
+  \item \emph{Missing municipalities and empty values.} Ten small municipalities have no URSSAF row and get 0
+  employees. The empty 2019 values (7{,}480 rows) are sectors without an establishment in that year and are counted
+  as 0.
+  \item \emph{Different definitions of the two sources.} Private salaried jobs at the workplace (URSSAF) cover only
+  58\,\% of the working residents (census). Without scaling, Caen appears as the largest net outflow, which is an
+  effect of the missing public-sector jobs. We therefore report both the raw and the scaled difference.
+\end{itemize}
