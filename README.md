@@ -69,6 +69,9 @@ Run in this order (each notebook states what it reads and writes):
 | `ex31_disaggregation` | 3.1 | B |
 | `ex32_routing` | 3.2 | B |
 
+Individual census data: every notebook that needs it reads `data/processed/census_14.parquet` (written by ex11;
+`age` = `AGEREV`, age in completed years; `age_aged` = `AGED`, comparison only) and never the raw census CSV.
+
 ## Figures → report
 
 Save every report figure with `save_figure(fig, "name")` (setup cell of each notebook): it writes the vector PDF

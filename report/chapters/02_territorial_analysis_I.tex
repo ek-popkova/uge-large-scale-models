@@ -248,9 +248,12 @@ few retirees, the old coastal resort the reverse.
   (\cref{sec:study-area}), so the map and the youngest and oldest municipality had to be computed from the aggregated
   census by IRIS. That file has only age bands, so the mean age per municipality is an estimate (band midpoints, 80+
   set to 85 years). We validated it on the 17 identifiable municipalities (\cref{tab:mean-age-validation}).
-  \item \emph{Two age variables.} The age saved in Exercise~1.1 was \code{AGED} (age reached during the census year).
-  It is on average about one year higher than the age in completed years (\code{AGEREV}) and does not match the age
-  bands of the aggregated file. We read \code{AGEREV} from the raw file and used it throughout.
+  \item \emph{Two age variables.} The detailed file has two single-year ages: \code{AGED}, the age reached during the
+  census year, and \code{AGEREV}, the age in completed years. \code{AGED} is on average about one year higher. We use
+  \code{AGEREV}: it is the usual meaning of age, and only with it do the weighted band totals of the detailed file match
+  the age bands of the aggregated file (within 1.0\,\%, against up to 33\,\% with \code{AGED}). The shared census
+  file of the project (\code{census\_14.parquet}, written in Exercise~1.1) therefore stores \code{AGEREV} as its
+  age column; \code{AGED} is kept only for this comparison.
   \item \emph{Two exploitations of the census.} The population of the aggregated file (\code{P19\_POP},
   \emph{exploitation principale}) and the weights of the detailed file (\emph{exploitation compl\'ementaire}) differ
   slightly, by 0.03\,\% for the department and by up to about one year of mean age for single municipalities

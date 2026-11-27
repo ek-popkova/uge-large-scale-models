@@ -14,7 +14,10 @@ commuting flows modelled in the following sections.
 The detailed census RP2019 ``Individus localis\'es au canton-ou-ville''~\cite{insee-census-detailed} is distributed in
 zones; Calvados belongs to zone~B (Centre-Val de Loire, Bourgogne-Franche-Comt\'e, Normandie, Hauts-de-France,
 file \code{FD\_INDCVIZB\_2019.csv}). We read the columns \code{DEPT}, \code{CANTVILLE}, \code{IRIS} (as strings),
-\code{IPONDI} (float), \code{AGED} and \code{CS1} (integers) and keep the rows with \code{DEPT = 14}.
+\code{IPONDI} (float), the two single-year ages \code{AGEREV} (age in completed years) and \code{AGED} (census year
+minus year of birth), and \code{CS1} (integers), and keep the rows with \code{DEPT = 14}. The result is saved as the
+shared individual census file of the project; \code{AGEREV} is the age used in all later sections
+(\cref{sec:territorial-I}).
 (1)~The number of observations is the number of rows. (2)~The number of persons is the sum of the weights \code{IPONDI}.
 (3)~The number of municipalities is taken from the IGN CONTOURS-IRIS 2021 file~\cite{ign-contours-iris}, the
 geography in which RP2019 is published: every municipality has at least one IRIS polygon, so we count the distinct
