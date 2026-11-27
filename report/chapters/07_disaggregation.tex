@@ -1,5 +1,5 @@
 \section{Disaggregation (Exercise 3.1)}\label{sec:disaggregation}
-\noindent Responsible: Person B. Notebook: \code{notebooks/B2\_disaggregation.ipynb}.
+\noindent Responsible: Person B. Notebook: \code{notebooks/ex31\_disaggregation.ipynb}.
 
 \subsection{Individual trips and map of origin--destination lines (2 points)}
 
@@ -11,7 +11,7 @@ The flow matrix $\Fij$ of \cref{sec:trip-distribution} is converted into a proba
 from which $n$ origin--destination pairs are sampled with replacement, with $n \ge 10\,000$. For each pair, a random
 origin coordinate and a random destination coordinate are drawn from within the respective zones. The departure time of
 each trip is sampled as described in the next subsection.
-\todo{State $n$, the random seed (from \code{lsm.config}), how random points inside a polygon are drawn (e.g.\ rejection
+\todo{State $n$, the random seed (from the setup cell of notebook ex31), how random points inside a polygon are drawn (e.g.\ rejection
 sampling in the bounding box) and whether the sampled coordinates are drawn uniformly in the municipality or restricted
 (e.g.\ to built-up areas).}
 

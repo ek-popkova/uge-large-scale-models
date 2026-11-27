@@ -1,8 +1,9 @@
 # Data sources
 
-All raw data goes into `data/raw/` (git-ignored). Nothing here is downloaded by the code.
+All raw data goes into `data/raw/` (git-ignored). Nothing here is downloaded by the notebooks.
 Record the download date and the exact file name you used (they belong in the report appendix).
-Set the department in `src/lsm/config.py` and update the `TODO_...` file names there.
+The department (`DEPARTMENT = "14"`, Calvados) and the raw file names are set in the setup cell of each notebook;
+replace the `TODO_...` file names there.
 
 | # | Data set | Link | File to pick |
 |---|---|---|---|
@@ -11,6 +12,19 @@ Set the department in `src/lsm/config.py` and update the `TODO_...` file names t
 | 3 | IGN CONTOURS-IRIS **2021 edition** | <https://geoservices.ign.fr/contoursiris> | Shapefile, LAMB93 / RGF93 (EPSG:2154). The assignment (Autumn 2026) says: go to <https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_CONTOURS-IRIS>, scroll to "API" → "Data Download", download icon; Zone = France Métropolitaine, Format = SHP, CRS = RGF93; one file remains, a `.7z` archive (needs 7-Zip or similar to unpack). |
 | 4 | URSSAF employees per municipality × APE | <https://open.urssaf.fr/explore/dataset/etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last/information/> | Tab "Export" → CSV. Private-sector salaried employment only. Check the separator and column names. |
 | 5 | Geofabrik OpenStreetMap extract | <http://download.geofabrik.de/europe/france.html> | `<region>-latest.osm.pbf` of the **region that contains our department** (sub-region page under `europe/france/`). |
+
+## Downloaded for Exercise 1.1 (2026-11-27)
+
+| File in `data/raw/` | Source |
+|---|---|
+| `FD_INDCVIZB_2019.csv` (~930 MB), `Varmod_INDCVI_2019.csv` | <https://www.insee.fr/fr/statistiques/fichier/6544333/RP2019_INDCVIZB_csv.zip> (zone B = Centre-Val de Loire, Bourgogne-Franche-Comté, **Normandie**, Hauts-de-France) |
+| `dictionnaire_indcvi_rp2019.pdf` | <https://www.insee.fr/fr/statistiques/fichier/6544333/dictionnaire_indcvi_rp2019.pdf> |
+| `CONTOURS-IRIS.{shp,shx,dbf,prj,cpg}` | <https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_2-1__SHP__FRA_2021-01-01/CONTOURS-IRIS_2-1__SHP__FRA_2021-01-01.7z>, folder `CONTOURS-IRIS/1_DONNEES_LIVRAISON_2021-06-00217/CONTOURS-IRIS_2-1_SHP_LAMB93_FXX-2021/` |
+
+Unpacking the `.7z` on Windows: without 7-Zip, `pip install py7zr` works. Extract into a **short** folder (e.g. a temp
+folder), not inside the project: the archive's nested folder names exceed the Windows 260-character path limit when
+the project lives in a long OneDrive path. Then copy only the `CONTOURS-IRIS.*` files into `data/raw/`. The shapefile
+is UTF-8 encoded and its `.prj` (IGNF:LAMB93) is the same CRS as EPSG:2154.
 
 ## Known pitfalls
 
@@ -30,10 +44,10 @@ Set the department in `src/lsm/config.py` and update the `TODO_...` file names t
 - **Friction.** `ρ_ij = exp(β d_ij)` with β = −1.1e-4 (d in metres). Table 2 of the assignment lists a second
   parameter, −0.4, which is a constant intercept in the exponent (`ρ_ij = exp(β d_ij + α)`, α = −0.4; the symbols were
   lost in the text export, confirm in the PDF). It cancels in the double-constrained balancing (absorbed by `p_i`,
-  `a_j`) and does not change `F_ij`; `lsm.config` keeps both.
+  `a_j`) and does not change `F_ij`; the setup cell of ex23 keeps both.
 - **Toy example.** In the toy example of the assignment, `D_1` must be **420** (the PDF prints 9462 by mistake; 9462 is
   `d_14`). Note that 420 + 2294 + 48377 + 6621 = 57712 while ΣO = 57715 (Table 5 is rounded down): with
-  `D_1 = 423` the totals balance and the floored flows match Table 5 exactly. `tests/test_gravity_toy.py` checks
-  both.
+  `D_1 = 423` the totals balance and the floored flows match Table 5 exactly. The toy-example cell of ex23
+  checks both.
 - **Departure time.** `T ~ N(μ, σ = 3600 s)`: the assignment text reads μ = "83600", which looks like a lost
-  multiplication sign (8·3600 = 28 800 s, 08:00). `lsm.config` uses `8 * 3600`; confirm in the PDF.
+  multiplication sign (8·3600 = 28 800 s, 08:00). The setup cell of ex31 uses `8 * 3600`; confirm in the PDF.

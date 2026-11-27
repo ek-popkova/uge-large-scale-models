@@ -11,7 +11,8 @@ dependencies:
   - jupyter=1
   - numpy=1
   - pandas=2
-  - geopandas>=1.0
+  - geopandas>=1.1        # dissolve(method="coverage"), simplify_coverage (ex11)
+  - shapely>=2.1
   - pyarrow=14
   - matplotlib-base=3
   - plotly=5
@@ -20,4 +21,3 @@ dependencies:
   - pyrosm=0.6
   - osmium-tool=1
   - tqdm=4
-  - pytest=8

@@ -110,7 +110,7 @@ This simply deletes the `build/` folder.
 | Build fails with a LaTeX error | Open `build/main.log` and search for `!` (error) or the `.tex:LINE:` pattern (`-file-line-error` is on). |
 | `??` instead of citation or reference numbers | Normally fixed within the same `latexmk` run. If it persists, run `.\build.ps1 -Clean` and build again. |
 | `Citation ... undefined` | The key is missing in `bibliography/references.bib`, or it is misspelled. |
-| `File '...pdf' not found` | Put the figure into `figures/` (the notebooks do this via `lsm.plotting.save_figure`) and reference it by file name only, without the folder. |
+| `File '...pdf' not found` | Put the figure into `figures/` (the notebooks do this via `save_figure`, defined in their setup cell) and reference it by file name only, without the folder. |
 | `Missing character` / `Undefined control sequence` around an underscore | Escape `_` as `\_` in text, or wrap file names in `\code{\detokenize{my_file}}`. |
 | Files in `build/` belong to root (Linux) | Docker wrote them as root: `sudo chown -R "$USER" build`. |
 | `Mount denied` / empty folder in the container (Windows) | Docker Desktop, Settings, Resources, File sharing: make sure the drive with the project is shared. |
@@ -126,7 +126,7 @@ This simply deletes the `build/` folder.
 - **Placeholders:** use `\todo{...}` (red, visible in the PDF) and `\figplaceholder{name}` for a figure that does not
   exist yet. Search for `TODO` before submitting; no red text may remain in the final PDF. Do not put `\todo` in
   section titles (it would end up in the table of contents).
-- **Figures:** save plots from the notebooks with `lsm.plotting.save_figure(fig, "name")`, which writes
+- **Figures:** save plots from the notebooks with `save_figure(fig, "name")` (setup cell of each notebook), which writes
   `report/figures/name.pdf` (vector). Reference them by name only (`\includegraphics{name}`, thanks to
   `\graphicspath`) and replace the `\figplaceholder{name}` call.
 - **Notation:** `\Oi`, `\Dj`, `\Fij`, `\dij`, `\rhoij`, `\Oprime`, `\pii`, `\aj` (see `preamble.tex`).
