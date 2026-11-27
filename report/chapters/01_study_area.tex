@@ -1,30 +1,119 @@
 \section{Study area (Exercise 1.1)}\label{sec:study-area}
-\noindent Responsible: Person A. Notebook: \code{notebooks/A1\_study\_area.ipynb}.
+\noindent Responsible: Person A. Notebook: \code{notebooks/ex11\_study\_area.ipynb}.
+
+We chose the department of \textbf{Calvados} (INSEE code 14) in the region Normandie, on the coast of the English Channel
+between Manche (50), Orne (61) and Eure (27). In the 2021 geography it has 528 municipalities. Its settlement structure
+is essentially monocentric: Caen, with about 106{,}000 inhabitants, and its suburbs (H\'erouville-Saint-Clair, Ifs,
+Mondeville, \dots) form the main centre, while Lisieux, Vire Normandie and Bayeux are secondary centres in an otherwise
+rural department. A strong centre surrounded by many small municipalities makes Calvados a good test case for the
+commuting flows modelled in the following sections.
 
 \subsection{Number of observations, persons and municipalities (1 point)}
 
 \paragraph{Method.}
-\todo{Name the chosen department and justify the choice. Describe how the detailed census was filtered to the department
-(zone file, department code, \code{IRIS} / \code{CANTVILLE} columns). Explain the three counts: (1) observations are rows
-of the filtered file, (2) persons are the \emph{sum of the weights} \code{IPONDI}, not the number of rows, (3) municipalities
-are counted from a source that identifies all of them. State how the municipalities without IRIS code in the detailed census
-(small municipalities, localised only at ``canton-ou-ville'' level) are handled.}
+The detailed census RP2019 ``Individus localis\'es au canton-ou-ville''~\cite{insee-census-detailed} is distributed in
+zones; Calvados belongs to zone~B (Centre-Val de Loire, Bourgogne-Franche-Comt\'e, Normandie, Hauts-de-France,
+file \code{FD\_INDCVIZB\_2019.csv}). We read the columns \code{DEPT}, \code{CANTVILLE}, \code{IRIS} (as strings),
+\code{IPONDI} (float), the two single-year ages \code{AGEREV} (age in completed years) and \code{AGED} (census year
+minus year of birth), and \code{CS1} (integers), and keep the rows with \code{DEPT = 14}. The result is saved as the
+shared individual census file of the project; \code{AGEREV} is the age used in all later sections
+(\cref{sec:territorial-I}).
+(1)~The number of observations is the number of rows. (2)~The number of persons is the sum of the weights \code{IPONDI}.
+(3)~The number of municipalities is taken from the IGN CONTOURS-IRIS 2021 file~\cite{ign-contours-iris}, the
+geography in which RP2019 is published: every municipality has at least one IRIS polygon, so we count the distinct
+codes \code{INSEE\_COM} starting with~14. For comparison we also count the municipalities that can be identified in the
+census itself, from the first five characters of \code{IRIS}.
 
 \paragraph{Result.}
-\todo{Report the three numbers, ideally in \cref{tab:study-area-counts}, and comment on the difference between observations
-and weighted persons.}
+\Cref{tab:study-area-counts} summarises the counts. The census contains 171{,}834 observations for Calvados, which
+represent 695{,}132 persons, so one observation stands on average for 4.05 persons. This weighted total is
+227 persons (+0.03\,\%) above the official INSEE municipal population 2019 of Calvados (694{,}905), and our 528
+municipalities equal the official number of municipalities~\cite{insee-popleg-2019} (details in the validation
+paragraph below).
 
 \begin{table}[H]
   \centering
-  \caption{\todo{Caption: census counts for the study area.}}
+  \caption{Census counts for Calvados (RP2019 detailed census, IGN CONTOURS-IRIS 2021).}
   \label{tab:study-area-counts}
   \begin{tabular}{@{}lr@{}}
     \toprule
     Quantity & Value \\
     \midrule
-    Person observations (rows, unweighted) & \todo{value} \\
-    Persons (sum of weights \code{IPONDI}) & \todo{value} \\
-    Municipalities & \todo{value} \\
+    (1) Person observations (rows, unweighted) & 171{,}834 \\
+    (2) Persons (sum of weights \code{IPONDI}) & 695{,}132 \\
+    \quad Mean weight (persons per observation) & 4.05 \\
+    (3) Municipalities (IGN CONTOURS-IRIS 2021) & 528 \\
+    \quad Municipalities identifiable in the detailed census & 17 \\
+    \quad Share of persons living in identifiable municipalities & 37.7\,\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The detailed file is not a full count but the result of the rotating census survey: municipalities with fewer than
+10{,}000 inhabitants are surveyed in rotation, one group per year over five years, and in municipalities with 10{,}000
+inhabitants or more a sample of dwellings is surveyed every year. Every observation therefore carries a weight
+\code{IPONDI}, and all statements about persons must use the weighted sum, not the number of rows. The weights depend on
+the size of the municipality (\cref{tab:study-area-weights}): about~5 in municipalities with fewer than 10{,}000
+inhabitants and 2.67 on average in the six municipalities with 10{,}000 inhabitants or more.
+
+\begin{table}[H]
+  \centering
+  \caption{Observations and weights by type of municipality, Calvados. Municipalities not split into IRIS have
+  \code{IRIS = ZZZZZZZZZ}. Size classes use the weighted RP2019 population, which is only known for identifiable
+  municipalities.}
+  \label{tab:study-area-weights}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    Municipalities & Number & Observations & Persons & Mean weight \\
+    \midrule
+    Not split into IRIS & 511 & 86{,}278 & 433{,}174 & 5.02 \\
+    Split into IRIS, $<$ 10{,}000 inhabitants & 11 & 14{,}479 & 72{,}183 & 4.99 \\
+    Split into IRIS, $\geq$ 10{,}000 inhabitants & 6 & 71{,}077 & 189{,}775 & 2.67 \\
+    \midrule
+    Total & 528 & 171{,}834 & 695{,}132 & 4.05 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The detailed file is localised at the level of the \emph{canton-ou-ville} (26 codes \code{CANTVILLE} in Calvados), not
+at the level of the municipality. The municipality can only be read from the IRIS code. For persons in a municipality
+that is not split into IRIS, \code{IRIS} is the placeholder \code{ZZZZZZZZZ}, so their municipality is unknown. Codes of
+the form \code{<municipality>XXXX} (IRIS with fewer than 200 inhabitants, 212 observations) still identify the municipality.
+As a result, only 17 of the 528 municipalities can be identified in the census. They are exactly the 17 municipalities
+that are split into IRIS in the IGN file, from Caen (106{,}234 persons) down to Trouville-sur-Mer (4{,}599 persons).
+They hold 49.8\,\% of the observations but only 37.7\,\% of the weighted population (261{,}958 persons). The 511
+remaining municipalities, with 62.3\,\% of the population, are only known at canton-ou-ville level. This is a hard
+limitation of the canton-ou-ville file. Any municipality-level statistic computed from it (\cref{sec:territorial-I})
+covers only these 17 municipalities, and the full set of 528 municipalities requires the aggregated census by IRIS.
+
+\paragraph{Validation.}
+We checked the results against the official INSEE legal populations 2019 for Calvados~\cite{insee-popleg-2019}
+(reference date 1~January 2019, municipalities in their limits of 1~January 2021, i.e.\ the same vintage as the census
+file and the IRIS geography). The official number of municipalities is 528, identical to our count from the IGN file.
+The official municipal population (\emph{population municipale}) is 694{,}905; our weighted sum of 695{,}132 differs by
+227 persons (+0.03\,\%). For the 17 municipalities that can be identified in the detailed file, the weighted sums
+agree with the official municipal populations within 0.12\,\% for the six municipalities with 10{,}000 inhabitants or
+more (\cref{tab:study-area-validation}) and within 1.2\,\% for the eleven smaller ones (largest deviation:
+Cond\'e-en-Normandie, 6{,}528 against 6{,}452). The weights of the detailed file therefore reproduce the official
+population well, both for the department and for single large municipalities.
+
+\begin{table}[H]
+  \centering
+  \caption{Weighted census counts compared with the official INSEE legal populations 2019 (population municipale)~\cite{insee-popleg-2019}.}
+  \label{tab:study-area-validation}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    & This study (sum of \code{IPONDI}) & Official & Difference \\
+    \midrule
+    Calvados (department) & 695{,}132 & 694{,}905 & +0.03\,\% \\
+    Number of municipalities & 528 & 528 & 0 \\
+    \midrule
+    Caen & 106{,}234 & 106{,}230 & +0.00\,\% \\
+    H\'erouville-Saint-Clair & 22{,}559 & 22{,}555 & +0.02\,\% \\
+    Lisieux & 20{,}040 & 20{,}038 & +0.01\,\% \\
+    Vire Normandie & 16{,}575 & 16{,}590 & $-$0.09\,\% \\
+    Bayeux & 12{,}667 & 12{,}682 & $-$0.12\,\% \\
+    Ifs & 11{,}700 & 11{,}696 & +0.04\,\% \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -32,19 +121,49 @@ and weighted persons.}
 \subsection{Map of the department inside of France (1 point)}
 
 \paragraph{Method.}
-\todo{Describe how the map is built from the IGN CONTOURS-IRIS 2021 data (dissolve to departments, highlight the study area,
-projection EPSG:2154).}
+The map is built entirely from IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris} (metropolitan France, Lambert-93,
+EPSG:2154). Departments are obtained by dissolving the 48{,}589 IRIS polygons on the first two characters of the
+municipality code (96 departments), and the 528 municipalities of Calvados by dissolving its 656 IRIS on the
+municipality code. For the national map the department boundaries are simplified with a 500\,m tolerance while keeping
+shared boundaries identical.
 
 \begin{figure}[H]
   \centering
-  \figplaceholder{study_area_location}
-  \caption{\todo{Caption: location of the study area inside of France.}}
-  \label{fig:study-area-location}
+  \includegraphics[width=\textwidth]{ex11_location}
+  \caption{Location of the study area. (a)~Departments of metropolitan France, with Calvados (14) highlighted and the
+  region Normandie (departments 14, 27, 50, 61, 76) outlined. (b)~Calvados with its 528 municipalities (2021 geography),
+  the main centre Caen and the secondary centres Bayeux, Lisieux and Vire Normandie. Lambert-93 projection.
+  Data: IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris}.}
+  \label{fig:ex11-location}
 \end{figure}
 
 \paragraph{Result.}
-\todo{Describe what \cref{fig:study-area-location} shows (neighbouring departments, main cities).}
+\Cref{fig:ex11-location}a shows that Calvados lies in the north-west of France, in the centre of the region
+Normandie: it borders Manche to the west, Orne to the south and Eure to the east, and the English Channel to the north.
+\Cref{fig:ex11-location}b shows the fine municipal mesh of the department: many small rural municipalities, with Caen
+in the centre-north close to the coast, Bayeux to the north-west, Lisieux to the east and Vire Normandie in the south-west.
 
 \paragraph{Problems encountered.}
-\todo{Document every problem for partial points: e.g.\ census files per zone, missing IRIS codes, municipality codes that
-differ between sources, how they were resolved.}
+\begin{itemize}
+  \item \emph{Choice of the census file.} The detailed census is split into zones; unlike the course example
+  (zone~A, \^Ile-de-France), Calvados is in zone~B, a file of about 930\,MB for four regions. It is read in chunks with
+  only the needed columns and filtered on \code{DEPT}.
+  \item \emph{Department filter of the course notebook.} The course notebook derives the department from the first two
+  characters of the IRIS code. Applied to Calvados, this drops every person living in a municipality that is not split
+  into IRIS, because their IRIS code is \code{ZZZZZZZZZ}: it keeps only 85{,}556 observations and 261{,}958 persons,
+  i.e.\ it loses 62.3\,\% of the population. We therefore filter on the column \code{DEPT}, which is filled for every
+  observation; the validation against the official population confirms the result.
+  \item \emph{Municipalities not identifiable in the census.} Half of the observations have the IRIS placeholder
+  \code{ZZZZZZZZZ}; only 17 of 528 municipalities (37.7\,\% of the population) can be identified in the detailed file.
+  The number of municipalities is therefore taken from the IGN file, and the limitation is carried over to
+  Exercise~1.2.
+  \item \emph{Slow dissolve.} Dissolving all IRIS of France into departments with the default \code{dissolve}
+  (unary union) took about 26\,s. Because IRIS form a clean polygon coverage, \code{dissolve(method="coverage")} gives
+  identical geometries (symmetric difference of area zero) in about 2\,s; the result is cached.
+  \item \emph{Unpacking the IGN archive.} 7-Zip was not installed, and extracting the \code{.7z} archive inside the
+  project folder failed on Windows because its nested folder names exceed the 260-character path limit. We extracted it
+  into a short temporary folder with the Python package \code{py7zr} and copied only the \code{CONTOURS-IRIS.*}
+  files (see \code{data/DATA\_SOURCES.md}).
+  \item \emph{Code consistency.} We checked every municipality and IRIS code of the census against IGN
+  CONTOURS-IRIS 2021: all of them exist, so there was no code mismatch between RP2019 and the 2021 geography.
+\end{itemize}

@@ -1,3 +1,6 @@
+# Local helper scripts (e.g. data download): not part of the repository; all project code lives in notebooks/
+scripts/
+
 # Data: never commit (keep the folder skeleton)
 data/raw/*
 !data/raw/.gitkeep
@@ -13,8 +16,6 @@ report/build/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
-.pytest_cache/
-*.egg-info/
 .venv/
 venv/
 
