@@ -1,6 +1,6 @@
 # Data sources
 
-All raw data goes into `data/raw/` (git-ignored). Nothing here is downloaded by the notebooks.
+All raw data goes into `data/raw/` (git-ignored). Only the aggregated census (row 2) is downloaded by a notebook (ex12, if missing); everything else by hand.
 Record the download date and the exact file name you used (they belong in the report appendix).
 The department (`DEPARTMENT = "14"`, Calvados) and the raw file names are set in the setup cell of each notebook;
 replace the `TODO_...` file names there.
@@ -26,7 +26,16 @@ folder), not inside the project: the archive's nested folder names exceed the Wi
 the project lives in a long OneDrive path. Then copy only the `CONTOURS-IRIS.*` files into `data/raw/`. The shapefile
 is UTF-8 encoded and its `.prj` (IGNF:LAMB93) is the same CRS as EPSG:2154.
 
+## Downloaded for Exercise 1.2 (2026-11-27)
+
+| File in `data/raw/` | Source |
+|---|---|
+| `base-ic-evol-struct-pop-2019.CSV`, `meta_base-ic-evol-struct-pop-2019.CSV` (variable dictionary) | <https://www.insee.fr/fr/statistiques/fichier/6543200/base-ic-evol-struct-pop-2019_csv.zip> ("Population en 2019 – IRIS – France hors Mayotte"); the data cell of `ex12` downloads it if missing |
+
 ## Known pitfalls
+
+- **Age variable.** The detailed census has `AGED` (census year minus birth year) and `AGEREV` (completed years).
+  The age bands of the aggregated census are in completed years; use `AGEREV` (Ex. 1.2).
 
 - **Weights.** Use the weight `IPONDI` for anything about persons in the detailed census: the number of
   persons is `sum(IPONDI)`, not the number of rows; means, histograms and shares must be weighted too.
