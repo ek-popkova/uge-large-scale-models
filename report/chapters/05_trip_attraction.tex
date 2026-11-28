@@ -1,7 +1,19 @@
 \section{Trip attraction (Exercise 2.2)}\label{sec:trip-attraction}
-\noindent Responsible: Person A. Notebook: \code{notebooks/ex21\_22\_trip\_production\_attraction.ipynb}.
+
+\paragraph{Data.}
+Employment: URSSAF private-sector salaried employees 2019~\cite{urssaf-employment}, as prepared in
+\cref{sec:territorial-II} (link given there). Sensitivity and plausibility check: INSEE MOBPRO RP2019~\cite{insee-mobpro-2019},
+\url{https://www.insee.fr/fr/statistiques/6456056}. Departures \Oi{}: \cref{sec:trip-production}.
 
 \subsection{Total number of trips \texorpdfstring{$N$}{N} and arriving trips per municipality (2 points)}
+
+\begin{qa}{Report on the value of $N$ that you have chosen. Plot on a map how many arriving trips have been generated
+for each municipality in the study area.}
+$0.7 \sum_j W_j = 0.7 \times 180{,}618 = 126{,}432.6$ and $0.7 \sum_i \Oi = 0.7 \times 291{,}949 = 204{,}364.5$. The
+employment term is the minimum, so \textbf{\boldmath $N = 126{,}432.6 \approx 126{,}433$ trips}. The arriving trips
+per municipality are mapped in \cref{fig:arrivals-map}: Caen receives the most (24{,}672 trips, 19.5\,\% of $N$),
+and 55 municipalities without URSSAF employees receive none.
+\end{qa}
 
 \paragraph{Method.}
 The number of trips arriving in zone $j$ is proportional to its employment $W_j$:
@@ -22,6 +34,20 @@ each municipality. As employment $W_j$ we use the \textbf{URSSAF private-sector 
 salaried jobs (no civil servants, hospitals, self-employed persons or farmers). It covers 65\,\% of the jobs counted by
 MOBPRO \cite{insee-mobpro-2019} in Calvados (\cref{sec:territorial-II-mobpro}). As a sensitivity analysis, we repeat
 the computation with the MOBPRO jobs at the place of work. Municipalities with $W_j = 0$ get $\Dj = 0$.
+\begin{lstlisting}[style=py]
+COMMUTER_SHARE = 0.7
+
+def attraction(W, O, share=COMMUTER_SHARE):
+    # N = min(share * sum W, share * sum O) and D_j = W_j / sum W * N
+    W = np.asarray(W, dtype=float)
+    N = min(share * W.sum(), share * O.sum())
+    D = W / W.sum() * N
+    return N, D
+
+O = O_by_municipality.to_numpy()                    # 528 municipalities, sorted by INSEE code
+N, D = attraction(df_employment["employees"], O)     # URSSAF (main result)
+N_mobpro, D_mobpro = attraction(df_employment["jobs_mobpro"], O)   # sensitivity
+\end{lstlisting}
 
 \paragraph{Result.}
 The URSSAF data give $\sum_j W_j = 180{,}618$ employees, and \cref{sec:trip-production} gives $\sum_i \Oi = 291{,}949$
@@ -86,6 +112,14 @@ of \cref{sec:trip-production} is therefore scaled proportionally to the total $N
 \end{equation}
 By construction, $\sum_i \Oprime = \sum_j \Dj = N$. Each municipality keeps its share of the trips, so \Oprime{} has
 the same spatial pattern as \Oi{}.
+\begin{lstlisting}[style=py]
+O_scaled = N * O / O.sum()                       # factor N / sum(O) = 0.4331
+assert np.isclose(O_scaled.sum(), D.sum())       # both equal N
+
+zones = gdf_municipalities[["municipality_id", "name", "geometry"]].copy()
+zones["O"], zones["D"] = O_scaled, D
+write_zones(zones)          # checks the contract, writes data/processed/zones.parquet
+\end{lstlisting}
 
 \paragraph{Result.}
 The scaling factor is $N / \sum_i \Oi = 0.4331$. Caen, for example, goes from 40{,}937 to 17{,}728 departures.
@@ -111,7 +145,7 @@ gravity model of \cref{sec:trip-distribution} has to reproduce.
 \Oprime{} and \Dj{}, together with the municipality geometry, form the hand-off file
 \code{data/processed/zones.parquet}: 528 rows sorted by INSEE code, with the columns \code{municipality\_id},
 \code{name}, \code{geometry} (EPSG:2154), \code{O}~$=\Oprime$ and \code{D}~$=\Dj$. It is the only interface to the second part of the project
-(\crefrange{sec:trip-distribution}{sec:routing}, Person B). The file is written by a function that checks the
+(\crefrange{sec:trip-distribution}{sec:routing}). The file is written by a function that checks the
 contract, and it passes the check after being read back: unique codes identical to the municipality boundaries, no
 missing or negative values, and $\sum O = \sum D = N$.
 

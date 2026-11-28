@@ -39,10 +39,33 @@
   columns=fullflexible,
   keywordstyle=\color{blue!60!black},
   commentstyle=\color{gray},
+  % listings is not UTF-8 aware: map the accented letters used in column names
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ç}{{\c{c}}}1 {ô}{{\^o}}1 {É}{{\'E}}1,
+}
+% Python excerpts of the analysis: \begin{lstlisting}[style=py] ... \end{lstlisting}
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  columns=fixed, basewidth=0.5em, keepspaces=true,
+  stringstyle=\color{green!40!black},
+  showstringspaces=false,
+  aboveskip=0.6\baselineskip,
+  belowskip=0.6\baselineskip,
+}
+
+%% Question / answer boxes: one per question of the assignment
+\usepackage[most]{tcolorbox}
+% \begin{qa}{<question as asked in the assignment>} <answer> \end{qa}
+\newtcolorbox{qa}[1]{
+  enhanced, breakable,
+  colback=blue!3, colframe=blue!45!black, boxrule=0.6pt, arc=1mm,
+  left=2mm, right=2mm, top=1mm, bottom=1mm,
+  before upper={\textbf{Question.} \emph{#1}\par\smallskip\textbf{Answer.}\ },
 }
 
 %% Links -- hyperref must be loaded late, cleveref after it
-\usepackage{url}
+\usepackage[hyphens]{url}
+\Urlmuskip=0mu plus 1mu % let long data URLs stretch instead of running into the margin
 \usepackage[hidelinks]{hyperref}
 \usepackage[capitalise, noabbrev]{cleveref} % \cref{fig:x} -> "Figure 1"
 

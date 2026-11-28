@@ -1,7 +1,15 @@
 \section{Trip production (Exercise 2.1)}\label{sec:trip-production}
-\noindent Responsible: Person A. Notebook: \code{notebooks/ex21\_22\_trip\_production\_attraction.ipynb}.
+
+\paragraph{Data.}
+Aggregated census by IRIS RP2019~\cite{insee-census-aggregated}, \url{https://www.insee.fr/fr/statistiques/6543200}
+(population aged 15 and over per SPC and IRIS), and the IRIS boundaries IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris},
+\url{https://geoservices.ign.fr/contoursiris}, for the map.
 
 \subsection{Trip generation model and total number of trips (1 point)}
+
+\begin{qa}{Report how many trips have been generated in total.}
+The model generates \textbf{291{,}949 trips} in Calvados (evaluated on the 656 IRIS; no zone needs clipping).
+\end{qa}
 
 \paragraph{Method.}
 The number of originating trips of zone $i$ is obtained from the growth-factor model of the assignment, applied to the
@@ -60,6 +68,23 @@ We made three decisions:
   \item \emph{Clipping.} $\max(\cdot, 0)$ is applied per zone. The offset is positive, and only SPC~8 has a negative
   factor, so we expected no clipped zone. We checked this.
 \end{enumerate}
+The model is evaluated as one matrix product, and the result of one zone is checked term by term:
+\begin{lstlisting}[style=py]
+BETA_0 = 27.244                                          # model offset (Table 1)
+BETA = np.array([0.319, 0.994, 0.863, 0.990, 0.780, 0.708, 0.120, -0.073])   # s = 1..8
+X = df_iris[[f"C19_POP15P_CS{s}" for s in range(1, 9)]].to_numpy()    # n_{i,s}, 656 x 8
+
+O_linear = BETA_0 + X @ BETA            # offset added ONCE per zone
+df_iris["O"] = np.maximum(O_linear, 0.0)   # clipping per zone (no zone is clipped)
+O_total = df_iris["O"].sum()             # 291,949
+
+# check for one zone (Thue et Mue), term by term
+row = df_iris.set_index("iris_id").loc["140980000"]
+by_hand = BETA_0 + sum(BETA[s - 1] * row[f"C19_POP15P_CS{s}"] for s in range(1, 9))
+assert np.isclose(row["O"], by_hand)
+
+O_by_municipality = df_iris.groupby("municipality_id")["O"].sum()   # input of Ex. 2.2
+\end{lstlisting}
 
 \paragraph{Result.}
 The model generates \textbf{291{,}949 trips} in Calvados, evaluated on the 656 IRIS. \textbf{No zone is clipped}: the
@@ -72,12 +97,26 @@ municipalities. We use the IRIS-level result. The map is per IRIS, and the munic
 
 \subsection{Trips per SPC and map of trips per IRIS (1 point)}
 
+\begin{qa}{Report using a bar plot how many trips have been generated for each SPC in the study area. On a map, show the
+total number of trips generated per IRIS.}
+The trips per SPC are in \cref{fig:trips-per-spc} and \cref{tab:trips-per-spc}: professions interm\'ediaires
+(76{,}921 trips, 26.3\,\%) and employ\'es (72{,}624, 24.9\,\%) generate half of all trips; SPC~8 contributes
+$-6{,}563$ trips, and the offset, which belongs to no SPC, 17{,}872. The trips per IRIS are mapped in
+\cref{fig:trips-per-iris-map}: from 27 to 3{,}642 trips per IRIS, median 258.
+\end{qa}
+
 \paragraph{Method.}
 No zone is clipped, so the linear model splits the total exactly into one contribution per SPC,
 $T_s = \beta_s \sum_i n_{i,s}$, plus the contribution of the offset, $656\,\beta_0 = 17{,}872$ trips. The offset
 belongs to no SPC and is shown as a separate bar (\cref{fig:trips-per-spc}). $\beta_s$ can be read as the number of
 trips per person aged 15 and over of SPC $s$ (\cref{tab:trips-per-spc}). The map (\cref{fig:trips-per-iris-map}) shows
 $\Oi$ per IRIS on a classed sequential colour scale, with a second panel zoomed on Caen, where the IRIS are small.
+\begin{lstlisting}[style=py]
+n_s = X.sum(axis=0)                  # persons 15+ per SPC in the department
+T_s = BETA * n_s                     # trips per SPC
+offset_trips = BETA_0 * len(df_iris) # 656 x beta_0 = 17,872
+assert np.isclose(T_s.sum() + offset_trips, O_total)   # exact because no zone is clipped
+\end{lstlisting}
 
 \begin{figure}[H]
   \centering
@@ -185,15 +224,14 @@ compared with a few dozen employed residents.
 
 \paragraph{Problems encountered.}
 \begin{itemize}
-  \item \emph{Census per IRIS.} The census table of \cref{sec:territorial-I} was aggregated to municipalities. The
-  notebook of Exercise 1.2 now also writes the table per IRIS. It was re-run from a fresh kernel, and its results are
-  unchanged.
+  \item \emph{Census per IRIS.} The census table of \cref{sec:territorial-I} was aggregated to municipalities. For the
+  trip generation it is also kept per IRIS; the results of \cref{sec:territorial-I} are unchanged.
   \item \emph{Offset in the course notebook.} The course notebook adds the offset once per SPC, i.e.\ eight times per
   zone. With that formula the total would be 42.9\,\% higher. We add it once per zone and check the implementation on
   one zone by hand.
   \item \emph{The total depends on the zoning.} With one offset per zone, the 656 IRIS give 3{,}487 trips (1.2\,\%) more
   than the 528 municipalities. We evaluate per IRIS, consistent with the map, and sum the IRIS to municipalities.
-  \item \emph{Offset in (almost) empty zones.} The offset creates trips where nobody lives. An activity zone of
+  \item \emph{Offset in (almost) empty zones.} The offset creates trips in zones without residents aged 15+. An activity zone of
   Cormelles-le-Royal without any resident aged 15 and over gets 27.2 trips, and the 11 IRIS with fewer than 50 persons
   aged 15 and over get 498 trips. Small municipalities get relatively more trips (see the plausibility check). We keep
   the model as specified; the offset is 6.1\,\% of the total.

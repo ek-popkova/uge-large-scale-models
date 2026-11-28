@@ -1,14 +1,35 @@
 \section{Territorial analysis II (Exercise 1.3)}\label{sec:territorial-II}
-\noindent Responsible: Person A. Notebook: \code{notebooks/ex13\_territorial\_analysis\_II.ipynb}.
 
-\paragraph{Data sources.}
-Working inhabitants come from the aggregated census by IRIS RP2019~\cite{insee-census-aggregated}, already aggregated
-to the 528 municipalities in \cref{sec:territorial-I}. Employees come from the URSSAF open data set of private-sector
-employers and salaried employees per municipality and activity sector (APE)~\cite{urssaf-employment}, latest edition
-(dataset last modified on 29 May 2026, years 2006--2025), downloaded on 27 November 2026. We use the year
-\textbf{2019}, the year of the census, so that both sources describe the same year.
+\paragraph{Data.}
+\begin{itemize}
+  \item Working inhabitants: aggregated census by IRIS RP2019~\cite{insee-census-aggregated},
+  \url{https://www.insee.fr/fr/statistiques/6543200}, already aggregated to the 528 municipalities in
+  \cref{sec:territorial-I}.
+  \item Employees: URSSAF open data on private-sector employers and salaried employees per municipality and activity
+  sector (APE)~\cite{urssaf-employment},\newline
+  \href{https://open.urssaf.fr/explore/dataset/etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last/information/}{\texttt{open.urssaf.fr/explore/dataset/}\newline
+  \texttt{etablissements-et-effectifs-salaries-au-niveau-commune-x-ape-last}},
+  latest edition (dataset last modified on 29 May 2026, years 2006--2025), CSV export restricted to department 14,
+  downloaded on 27 November 2026. We use the column \code{Effectifs salari\'es 2019}, the employees at
+  \textbf{31 December 2019}: 2019 is the year of the census RP2019, so that both sources describe the same year, and it
+  is also the year used in the course notebook.
+  \item INSEE Code officiel g\'eographique 2026, list of changes of municipalities~\cite{insee-cog-2026},
+  \url{https://www.insee.fr/fr/statistiques/fichier/8740222/v_mvt_commune_2026.csv}, to recode URSSAF to the 2021
+  geography.
+  \item For validation only: INSEE commuting file MOBPRO RP2019~\cite{insee-mobpro-2019},
+  \url{https://www.insee.fr/fr/statistiques/6456056} (\code{FD\_MOBPRO\_2019.csv}).
+\end{itemize}
 
 \subsection{Working inhabitants per municipality (1 point)}
+
+\begin{qa}{Make use of the aggregated census data to create a bar plot indicating the number of working inhabitants in
+each municipality of the study area. Explain how you count these persons from the data.}
+The bar plot is \cref{fig:working-inhabitants} (30 largest municipalities) and \cref{fig:working-inhabitants-all} in
+the appendix (all 528). \textbf{We count as working inhabitants the persons aged 15 and over in the six SPCs of the
+working population}, i.e.\ the sum of the columns \code{C19\_POP15P\_CS1} to \code{C19\_POP15P\_CS6} of the
+aggregated census, summed from IRIS to municipality. Retirees (SPC~7) and other persons without professional activity
+(SPC~8) are excluded. Calvados has 311{,}886 working inhabitants; Caen has the most (45{,}682).
+\end{qa}
 
 \paragraph{Method.}
 The aggregated census does not count employed persons directly. It gives the population aged 15 and over in eight
@@ -23,6 +44,11 @@ intellectuelles sup\'erieures; professions interm\'ediaires; employ\'es; and ouv
 (autres personnes sans activit\'e professionnelle, mostly pupils, students and persons at home) are excluded. The
 values per IRIS are summed to municipalities. They are weighted counts from the \emph{exploitation compl\'ementaire}
 of the census, so they are not integers.
+\begin{lstlisting}[style=py]
+WORKING_SPC = [1, 2, 3, 4, 5, 6]        # 7 (retraites) and 8 (autres) excluded
+WORKING_COLUMNS = [f"C19_POP15P_CS{k}" for k in WORKING_SPC]
+df_population["working_inhabitants"] = df_population[WORKING_COLUMNS].sum(axis=1)
+\end{lstlisting}
 
 The SPC classifies persons by ``la profession (ou l'ancienne profession)''~\cite{insee-rp-definitions}. SPC 1--6
 therefore count the \emph{active} population by occupation, which may include persons who are not in employment. We
@@ -57,6 +83,13 @@ appendix (\cref{fig:working-inhabitants-all}).
 
 \subsection{Employees per municipality (1 point)}
 
+\begin{qa}{Make use of the URSSAF employment data to create a bar plot indicating the number of employees in each
+municipality of the study area.}
+The bar plot is \cref{fig:employees} (30 largest municipalities) and \cref{fig:employees-all} in the appendix
+(all 528). URSSAF counts \textbf{180{,}618 private-sector salaried employees} in Calvados in 2019; Caen has the most
+(35{,}246), followed by Mondeville (10{,}500).
+\end{qa}
+
 \paragraph{Method.}
 The URSSAF file has one row per municipality and APE code with the number of establishments and of salaried employees
 at 31 December of each year. As in the course notebook, we read \code{Code commune} as a string, keep the department
@@ -78,6 +111,32 @@ proportion to their working inhabitants. This is an assumption, and the split af
 every URSSAF row is matched, and the department total is preserved. Ten small municipalities (48 to 216 inhabitants)
 have no URSSAF row at all. They get \textbf{0 employees}, which means no private establishment with employees. In
 total, 55 municipalities have 0 employees in 2019.
+\begin{lstlisting}[style=py]
+# Sum over all APE sectors per municipality (empty values count as 0)
+df_urssaf = (df_urssaf_raw.groupby("Code commune")
+             .agg(employees=("Effectifs salariés 2019", "sum"))
+             .rename_axis("urssaf_code").reset_index())
+
+# 2021 code -> current code, following the INSEE list of changes after 1 January 2021
+changes = df_cog[
+    (df_cog["DATE_EFF"] > "2021-01-01") & (df_cog["TYPECOM_AV"] == "COM") & (df_cog["TYPECOM_AP"] == "COM")
+    & df_cog["COM_AV"].isin(ours) & (df_cog["COM_AV"] != df_cog["COM_AP"])
+]
+to_current = dict(zip(changes["COM_AV"], changes["COM_AP"]))
+def current_code(code):
+    while code in to_current:
+        code = to_current[code]
+    return code
+df_match["urssaf_code"] = df_match["municipality_id"].map(current_code)
+
+# Split the total of a merged municipality in proportion to the working inhabitants
+df_match = df_match.merge(df_urssaf, on="urssaf_code", how="left", validate="m:1")
+group_working = df_match.groupby("urssaf_code")["working_inhabitants"].transform("sum")
+df_match["n_in_group"] = df_match.groupby("urssaf_code")["municipality_id"].transform("size")
+df_match["split_share"] = np.where(df_match["n_in_group"] > 1,
+                                   df_match["working_inhabitants"] / group_working, 1.0)
+df_match["employees"] = (df_match["employees"] * df_match["split_share"]).fillna(0.0)   # no row -> 0
+\end{lstlisting}
 
 \emph{Scope.} URSSAF counts \emph{private-sector salaried employees at their place of work}. Not included are the
 public sector (State, local authorities, public hospitals), the self-employed, and farmers and agricultural employees,
@@ -102,6 +161,19 @@ Rots.
 
 \subsection{Difference between working inhabitants and employees (1 point)}\label{sec:territorial-II-difference}
 
+\begin{qa}{Make a map of the study area which, for each municipality, shows the difference between working inhabitants
+and employees. Which municipality has the largest net outflow (inhabitants $-$ employees), which one the largest net
+inflow of employees?}
+The map is \cref{fig:net-flow-map}. \textbf{The answer to the question as asked}, i.e.\ for the raw difference
+working inhabitants $-$ employees, is: the \textbf{largest net outflow is Caen} (14118, $+10{,}436$) and the
+\textbf{largest net inflow is Mondeville} (14437, $-5{,}894$).
+
+As an additional reading, we also scale the employees to the total of working inhabitants
+(\cref{fig:net-flow-map-scaled}). Caen's raw outflow is an artefact of URSSAF, which misses the public-sector jobs
+concentrated there, so the scaled view is more meaningful and is confirmed by the commuting data MOBPRO. In it the
+largest net outflow is Souleuvre en Bocage (14061, $+3{,}032$) and the largest net inflow is Caen ($-15{,}179$).
+\end{qa}
+
 \paragraph{Method.}
 For each municipality we compute $\Delta_i = W^{\mathrm{res}}_i - E_i$, working inhabitants minus employees. A
 positive value means more working residents than jobs, i.e.\ a \emph{net outflow} of commuters. A negative value means
@@ -119,6 +191,14 @@ the total of working inhabitants, $\tilde E_i = E_i \cdot \sum_k W^{\mathrm{res}
 scaled difference $\tilde\Delta_i = W^{\mathrm{res}}_i - \tilde E_i$ sums to 0 and shows the relative pattern
 (\cref{fig:net-flow-map-scaled}). This is also how employment enters the trip attraction in \cref{sec:trip-attraction}:
 arriving trips are proportional to employment.
+\begin{lstlisting}[style=py]
+df_population["difference"] = df_population["working_inhabitants"] - df_population["employees"]
+scale_factor = working_total / employees_total                     # 1.727
+df_population["difference_scaled"] = (df_population["working_inhabitants"]
+                                      - scale_factor * df_population["employees"])
+outflow = df_population.nlargest(1, "difference")     # largest net outflow
+inflow = df_population.nsmallest(1, "difference")     # largest net inflow
+\end{lstlisting}
 
 \begin{figure}[H]
   \centering

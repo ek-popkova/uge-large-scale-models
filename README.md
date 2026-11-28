@@ -10,8 +10,8 @@ Deadline: 15/01/2027 (e-mail to the lecturer). Department: **Calvados (14), regi
 
 | Person | Name | Exercises | Points | Notebooks |
 |---|---|---|---|---|
-| A | TODO | 1.1 Study area, 1.2 + 1.3 Territorial analysis, 2.1 Trip production, 2.2 Trip attraction | 12 | `ex11` … `ex21_22` |
-| B | TODO | 2.3 Trip distribution, 3.1 Disaggregation, 3.2 Routing | 10 | `ex23` … `ex32` |
+| A | Ekaterina Popkova | 1.1 Study area, 1.2 + 1.3 Territorial analysis, 2.1 Trip production, 2.2 Trip attraction | 12 | `ex11` … `ex21_22` |
+| B | Elham Yavuz | 2.3 Trip distribution, 3.1 Disaggregation, 3.2 Routing | 10 | `ex23` … `ex32` |
 
 ## Hand-off contract A → B
 
@@ -25,7 +25,8 @@ Deadline: 15/01/2027 (e-mail to the lecturer). Department: **Calvados (14), regi
 | `O` | float | scaled originating trips O'_i (Exercise 2.2) |
 | `D` | float | arriving trips D_j (Exercise 2.2) |
 
-Constraint: `O.sum() == D.sum() == N` (the total number of trips). The row order of the file defines the zone order of all
+`O` and `D` are **floats**, not integers: they are model values (weighted census counts times growth factors, scaled
+to N), so do not round them before the gravity model. Constraint: `O.sum() == D.sum() == N` (the total number of trips). The row order of the file defines the zone order of all
 vectors and matrices in Person B's part. Write it with `write_zones(zones)` (setup cell of ex21_22, validates the
 contract) and read it with `read_zones()` (setup cell of ex23). Both notebooks define the contract in `validate_zones`;
 if the contract changes, change it in both.
@@ -46,6 +47,10 @@ Numbers Person B needs (from ex21_22, `ex22_results.json`):
   there, not even within the municipality); their O is still > 0.
 
 Re-run ex13 or ex21_22 → commit the updated file together with the notebook.
+
+**Versions.** Both parquet files are written with the versions pinned in `environment.yml` (pandas 3.0,
+geopandas 1.2, pyarrow 24). Read them in that environment: older pandas/geopandas versions may fail to read them or
+read the string columns with a different dtype.
 
 **Starting early:** until ex21_22 is done, Person B can build placeholder zones in ex23 (see the note there):
 O = population 15+ and D = URSSAF employment, scaled to the same total. This is **placeholder data**, not the
@@ -110,8 +115,9 @@ and `\figplaceholder{...}`, fill in all names and e-mail addresses (required by 
 
 ## Conventions
 
-- One branch per person (`person-a`, `person-b`), merge into `main` through pull requests; the hand-off file
-  and its contract are the only coupling.
+- One branch per exercise or group of exercises, named `<user>/feature/<exercise>` (e.g. `epopkova/feature/ex1`,
+  `epopkova/feature/ex2-partA`), merged into `main` through pull requests; the hand-off files and their contract are
+  the only coupling between the two parts.
 - Commit notebooks **with their outputs**: before committing, run the notebook top to bottom from a fresh kernel
   ("Restart Kernel and Run All") so that the saved outputs match the code. Also commit LaTeX, bibliography and the
   final figure PDFs in `report/figures/`. **No data, no compiled report PDF and no helper scripts in Git**
