@@ -1,13 +1,13 @@
 \section{Territorial analysis I (Exercise 1.2)}\label{sec:territorial-I}
-\noindent Responsible: Person A. Notebook: \code{notebooks/ex12\_territorial\_analysis\_I.ipynb}.
 
-\paragraph{Data sources.}
+\paragraph{Data.}
 Two census products are combined, and every number below states which one it comes from.
 \begin{itemize}
   \item The \emph{detailed census} RP2019~\cite{insee-census-detailed} (171{,}834 observations for Calvados, weights
   \code{IPONDI}) has single-year ages and the SPC of every person, but identifies only 17 of the 528 municipalities
   (\cref{sec:study-area}). It is used for all department-level statistics, with weights.
-  \item The \emph{aggregated census by IRIS} RP2019 ``Population en 2019 -- IRIS''~\cite{insee-census-aggregated}
+  \item The \emph{aggregated census by IRIS} RP2019 ``Population en 2019 -- IRIS''~\cite{insee-census-aggregated},
+  \url{https://www.insee.fr/fr/statistiques/6543200}, file \code{base-ic-evol-\allowbreak struct-pop-2019.CSV}
   (656 IRIS in Calvados, aggregated to municipalities with the code
   \code{COM}) covers all 528 municipalities, with ten age bands and the population aged 15 and over by SPC. Its counts
   are already weighted by INSEE. It is used for every statistic of a single municipality. Its 528 municipality codes
@@ -28,10 +28,23 @@ within 1.0\,\% in every band, with \code{AGED} they differ by up to 33\,\% (band
 
 \subsection{Age distribution and average age (1 point)}
 
+\begin{qa}{Plot the age distribution of the persons living in the department. Indicate the average age of persons
+living in the territory.}
+The age distribution is shown in \cref{fig:age-distribution}. The \textbf{average age of the persons living in
+Calvados is 42.1 years} (weighted mean; median 43 years).
+\end{qa}
+
 \paragraph{Method.}
 For each age $a$ (completed years) the number of persons is the sum of the weights of the observations of that age,
 $N_a = \sum_{k:\,a_k = a} w_k$, over all 171{,}834 observations of the department. The average age is the weighted mean
-$\bar a = \sum_k w_k a_k / \sum_k w_k$; we also report the weighted median.
+$\bar a = \sum_k w_k a_k / \sum_k w_k$; we also report the weighted median. The code excerpts of this section are
+simplified; the notebook renames \code{IPONDI}$\to$\code{weight}, \code{AGEREV}$\to$\code{age} and
+\code{CS1}$\to$\code{csp}.
+\begin{lstlisting}[style=py]
+w = df_census["IPONDI"]
+age_distribution = df_census.groupby("AGEREV")["IPONDI"].sum()    # persons per age
+mean_age = np.average(df_census["AGEREV"], weights=w)             # 42.05
+\end{lstlisting}
 
 \begin{figure}[H]
   \centering
@@ -55,6 +68,13 @@ over-represented among the rows.
 
 \subsection{Average age per municipality, youngest and oldest (1 point)}
 
+\begin{qa}{Make a map of the municipalities in the study area and indicate the average age of their population. Which
+municipality is the youngest, which one is the oldest?}
+The map is \cref{fig:mean-age-map}. The \textbf{youngest municipality is Gavrus} (14297, 584 inhabitants, estimated
+mean age 30.9 years) and the \textbf{oldest is Tourg\'eville} (14701, 782 inhabitants, 56.9 years). The answer is the
+same over all 528 municipalities and over the 242 municipalities with at least 500 inhabitants.
+\end{qa}
+
 \paragraph{Method.}
 Because the detailed file identifies only 17 municipalities (37.7\,\% of the population, \cref{sec:study-area}), a
 map of all 528 municipalities cannot be built from it. The average age per municipality is therefore estimated from
@@ -64,6 +84,21 @@ the ten age bands of the aggregated census (0--2, 3--5, 6--10, 11--17, 18--24, 2
 age of this band is 85.7 years. The estimate for municipality $i$ is
 $\hat a_i = \sum_b m_b P_{ib} / \sum_b P_{ib}$, where $P_{ib}$ is the population of $i$ in band $b$ and
 $\sum_b P_{ib}$ equals \code{P19\_POP}.
+\begin{lstlisting}[style=py]
+AGE_BANDS = [("P19_POP0002", 0, 2), ("P19_POP0305", 3, 5), ("P19_POP0610", 6, 10),
+             ("P19_POP1117", 11, 17), ("P19_POP1824", 18, 24), ("P19_POP2539", 25, 39),
+             ("P19_POP4054", 40, 54), ("P19_POP5564", 55, 64), ("P19_POP6579", 65, 79),
+             ("P19_POP80P", 80, None)]
+AGE_OPEN_BAND = 85.0        # assumed mean age of the band 80+ (85.7 in the detailed census)
+midpoints = pd.Series({c: AGE_OPEN_BAND if hi is None else (lo + hi) / 2
+                       for c, lo, hi in AGE_BANDS})
+counts = df_population[midpoints.index]           # persons per band and municipality
+df_population["mean_age_est"] = counts.mul(midpoints).sum(axis=1) / counts.sum(axis=1)
+
+large = df_population["P19_POP"] >= 500           # variant (b): at least 500 inhabitants
+youngest = df_population[large].nsmallest(1, "mean_age_est")
+oldest = df_population[large].nlargest(1, "mean_age_est")
+\end{lstlisting}
 
 \paragraph{Validation.}
 For the department and the 17 identifiable municipalities we compare the exact weighted mean age from single-year
@@ -169,6 +204,16 @@ years in the aggregated file), because of their students and young working popul
 
 \subsection{Socio-professional categories: study area and at least three municipalities (1 point)}
 
+\begin{qa}{Plot the distribution of socio-professional categories of the overall study area and for at least three
+individual municipalities. Describe if you see differences between municipalities and the study area in general.}
+The distributions of Calvados and of four municipalities are shown in \cref{fig:spc-distribution} and
+\cref{tab:spc-shares}. \textbf{Yes, the municipalities differ clearly from the department}: Caen has almost twice the
+department share of persons without professional activity (28.2 vs.\ 15.6\,\%, mostly students) and more cadres;
+H\'erouville-Saint-Clair is also young but has more employ\'es and fewer cadres; the seaside resort Trouville-sur-Mer
+has 46.0\,\% retirees (department 30.3\,\%); the rural municipality \'Epaney has twelve times the department share of
+farmers (10.9 vs.\ 0.9\,\%). Details are in the result below.
+\end{qa}
+
 \paragraph{Method.}
 All shares refer to the \textbf{population aged 15 and over}, so that the department and the municipalities are
 comparable. The SPC counts of the aggregated census are only given for persons aged 15+, and in the detailed file
@@ -186,7 +231,20 @@ municipalities with contrasting profiles:
   500 to 1{,}500 inhabitants, the one with the highest share of farmers.
 \end{itemize}
 The first three are also identifiable in the detailed file, and their weighted shares there are identical to the
-aggregated ones. \Cref{fig:spc-distribution} and \cref{tab:spc-shares} compare the shares with the department.
+aggregated ones.
+\begin{lstlisting}[style=py]
+# Department: weighted shares of the population aged 15+ (detailed census)
+df_15p = df_census[df_census["AGEREV"] >= 15]
+spc_department = df_15p.groupby("CS1")["IPONDI"].sum() / df_15p["IPONDI"].sum()
+
+# Municipalities: shares from the aggregated census, C19_POP15P_CS1..8 / C19_POP15P
+for k in range(1, 9):
+    df_population[f"share_cs{k}"] = df_population[f"C19_POP15P_CS{k}"] / df_population["C19_POP15P"]
+
+# Rural example: highest share of farmers among the municipalities with 500-1,500 inhabitants
+rural = (df_population[df_population["P19_POP"].between(500, 1500)]
+         .sort_values("share_cs1", ascending=False).iloc[0])          # Epaney
+\end{lstlisting} \Cref{fig:spc-distribution} and \cref{tab:spc-shares} compare the shares with the department.
 
 \begin{figure}[H]
   \centering

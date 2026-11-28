@@ -6,6 +6,9 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# Exception: the hand-off files A -> B (see README, "Hand-off contract A -> B")
+!data/processed/zones.parquet
+!data/processed/commutes_14.parquet
 
 # PDFs: never commit, except the figure PDFs that the report includes
 *.pdf

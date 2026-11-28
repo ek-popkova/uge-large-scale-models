@@ -1,14 +1,34 @@
 \section{Study area (Exercise 1.1)}\label{sec:study-area}
-\noindent Responsible: Person A. Notebook: \code{notebooks/ex11\_study\_area.ipynb}.
 
-We chose the department of \textbf{Calvados} (INSEE code 14) in the region Normandie, on the coast of the English Channel
-between Manche (50), Orne (61) and Eure (27). In the 2021 geography it has 528 municipalities. Its settlement structure
-is essentially monocentric: Caen, with about 106{,}000 inhabitants, and its suburbs (H\'erouville-Saint-Clair, Ifs,
-Mondeville, \dots) form the main centre, while Lisieux, Vire Normandie and Bayeux are secondary centres in an otherwise
-rural department. A strong centre surrounded by many small municipalities makes Calvados a good test case for the
-commuting flows modelled in the following sections.
+\paragraph{Data.}
+All census data refer to the census RP2019 (reference date 1 January 2019), in the municipality geography of
+1 January 2021. Every file was downloaded on 27 November 2026.
+\begin{itemize}
+  \item INSEE detailed census RP2019, ``Individus localis\'es au canton-ou-ville''~\cite{insee-census-detailed},
+  \url{https://www.insee.fr/fr/statistiques/6544333}: file of zone~B, \code{FD\_INDCVIZB\_2019.csv}, one row per
+  person with the weight \code{IPONDI}.
+  \item IGN CONTOURS-IRIS, 2021 edition~\cite{ign-contours-iris}, \url{https://geoservices.ign.fr/contoursiris}:
+  shapefile \code{CONTOURS-IRIS\_2-1\_\allowbreak SHP\_LAMB93\_FXX-2021} (metropolitan France, Lambert-93, EPSG:2154).
+  Municipalities and departments are obtained by dissolving the IRIS.
+  \item INSEE legal populations 2019 of Calvados~\cite{insee-popleg-2019},
+  \url{https://www.insee.fr/fr/statistiques/fichier/6011060/dep14.pdf}, used only for validation.
+\end{itemize}
 
 \subsection{Number of observations, persons and municipalities (1 point)}
+
+\begin{qa}{Explain which department you have chosen. (1)~How many person observations are included in the census for
+that department? (2)~How many persons live in that department? (3)~How many municipalities are there in the
+department?}
+We chose \textbf{Calvados} (INSEE code 14, region Normandie), on the English Channel between Manche, Orne and Eure.
+It is essentially monocentric: Caen (about 106{,}000 inhabitants) and its suburbs form the main centre, Lisieux,
+Vire Normandie and Bayeux are secondary centres, the rest is rural.
+\begin{enumerate}
+  \item The census contains \textbf{171{,}834 person observations} for Calvados.
+  \item They represent \textbf{695{,}132 persons} (sum of the weights \code{IPONDI}); the official population is
+  694{,}905 ($+0.03\,\%$).
+  \item The department has \textbf{528 municipalities} (IGN CONTOURS-IRIS 2021, equal to the official number).
+\end{enumerate}
+\end{qa}
 
 \paragraph{Method.}
 The detailed census RP2019 ``Individus localis\'es au canton-ou-ville''~\cite{insee-census-detailed} is distributed in
@@ -23,6 +43,24 @@ shared individual census file of the project; \code{AGEREV} is the age used in a
 geography in which RP2019 is published: every municipality has at least one IRIS polygon, so we count the distinct
 codes \code{INSEE\_COM} starting with~14. For comparison we also count the municipalities that can be identified in the
 census itself, from the first five characters of \code{IRIS}.
+
+The file of zone~B has about 930\,MB, so it is read in chunks with only the needed columns. The department is
+selected on the column \code{DEPT}, not on the IRIS code (see the problems below). The three answers are then a row
+count, a weighted sum and a count of distinct municipality codes (simplified; the notebook renames
+\code{IPONDI}$\to$\code{weight}, \code{AGEREV}$\to$\code{age}, \code{CS1}$\to$\code{csp} and
+\code{INSEE\_COM}$\to$\code{municipality\_id}):
+\begin{lstlisting}[style=py]
+columns = {"DEPT": str, "CANTVILLE": str, "IRIS": str, "IPONDI": float,
+           "AGEREV": int, "AGED": int, "CS1": int, "TACT": str}
+chunks = pd.read_csv(CENSUS_CSV, sep=";", usecols=columns.keys(), dtype=columns,
+                     chunksize=1_000_000)
+df_census = pd.concat([c[c["DEPT"] == "14"] for c in chunks], ignore_index=True)
+
+n_observations = len(df_census)                 # (1) rows
+n_persons = df_census["IPONDI"].sum()           # (2) weighted persons
+df_iris = df_iris_france[df_iris_france["INSEE_COM"].str[:2] == "14"]
+n_municipalities = df_iris["INSEE_COM"].nunique()   # (3) IGN CONTOURS-IRIS 2021
+\end{lstlisting}
 
 \paragraph{Result.}
 \Cref{tab:study-area-counts} summarises the counts. The census contains 171{,}834 observations for Calvados, which
@@ -120,12 +158,23 @@ population well, both for the department and for single large municipalities.
 
 \subsection{Map of the department inside of France (1 point)}
 
+\begin{qa}{Prepare a map that shows where the department is located inside of France.}
+See \cref{fig:ex11-location}. Calvados lies in the north-west of France, in the centre of the region Normandie, on the
+English Channel; it borders Manche to the west, Orne to the south and Eure to the east.
+\end{qa}
+
 \paragraph{Method.}
 The map is built entirely from IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris} (metropolitan France, Lambert-93,
 EPSG:2154). Departments are obtained by dissolving the 48{,}589 IRIS polygons on the first two characters of the
 municipality code (96 departments), and the 528 municipalities of Calvados by dissolving its 656 IRIS on the
 municipality code. For the national map the department boundaries are simplified with a 500\,m tolerance while keeping
-shared boundaries identical.
+shared boundaries identical:
+\begin{lstlisting}[style=py]
+departments = (df_iris_france.assign(department_id=df_iris_france["INSEE_COM"].str[:2])
+               .dissolve("department_id", method="coverage"))     # 96 departments
+departments["geometry"] = departments.geometry.simplify_coverage(500)   # 500 m
+municipalities = df_iris.dissolve("INSEE_COM", aggfunc="first")      # 528 in Calvados
+\end{lstlisting}
 
 \begin{figure}[H]
   \centering

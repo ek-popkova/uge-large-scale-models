@@ -1,13 +1,16 @@
 \section{Trip distribution (Exercise 2.3)}\label{sec:trip-distribution}
-\noindent Responsible: Person B. Notebook: \code{notebooks/ex23\_trip\_distribution.ipynb}.
 
 \subsection{Distance matrix (1 point)}
+
+\begin{qa}{Show the distance matrix as a table or in a plot.}
+\todo{answer}
+\end{qa}
 
 \paragraph{Method.}
 The distance matrix $\dij$ contains the Euclidean distances in metres between the centroids of all municipalities of
 the study area, computed in the projected CRS EPSG:2154 (Lambert-93). The order of the municipalities is fixed by
 \code{zones.parquet}. \todo{Describe the computation (centroids, how the zero diagonal, i.e.\ intra-zonal distance,
-is treated) and which zone data the work started from (placeholder or final file of Person A).}
+is treated) and which zone data the work started from (placeholder or final file).}
 
 \begin{figure}[H]
   \centering
@@ -20,6 +23,10 @@ is treated) and which zone data the work started from (placeholder or final file
 \todo{Comment on the structure of \cref{fig:distance-matrix} (or give a table of a subset of the matrix).}
 
 \subsection{Gravity model and resulting flows (1 point)}
+
+\begin{qa}{Report the resulting flows $F_{ij}$ in a table or plot.}
+\todo{answer}
+\end{qa}
 
 \paragraph{Method.}
 A double-constrained gravity model is used. The flow from zone $i$ to zone $j$ is
@@ -61,7 +68,7 @@ criterion, the number of iterations needed, and the convergence plot or error.}
 \paragraph{Verification on the toy example.}
 \Cref{tab:toy-inputs,tab:toy-distance,tab:toy-flows} reproduce the toy example of the assignment. With the given distances
 and the demand and destination values the implementation must reproduce the flow matrix in \cref{tab:toy-flows} (values
-rounded down); this is checked in notebook \code{ex23\_trip\_distribution.ipynb}. Note that the assignment prints $D_1 = 9462$ in
+rounded down); this is checked before the model is applied to Calvados. Note that the assignment prints $D_1 = 9462$ in
 its Table~3, which is a typo: the column sum of \cref{tab:toy-flows} for destination~1 is $420$.
 
 \begin{table}[H]
@@ -123,6 +130,10 @@ $\Oprime$ and $\Dj$.}
 \end{figure}
 
 \subsection{The ten largest flows (1 point)}
+
+\begin{qa}{Document the 10 pairs of municipalities with the largest flows and name them.}
+\todo{answer}
+\end{qa}
 
 \paragraph{Method.}
 \todo{Describe how the ten largest origin--destination pairs are selected (including or excluding intra-zonal flows

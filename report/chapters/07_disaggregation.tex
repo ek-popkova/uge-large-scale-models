@@ -1,7 +1,10 @@
 \section{Disaggregation (Exercise 3.1)}\label{sec:disaggregation}
-\noindent Responsible: Person B. Notebook: \code{notebooks/ex31\_disaggregation.ipynb}.
 
 \subsection{Individual trips and map of origin--destination lines (2 points)}
+
+\begin{qa}{Plot the generated trips on a map using a line between origin and destination.}
+\todo{answer}
+\end{qa}
 
 \paragraph{Method.}
 The flow matrix $\Fij$ of \cref{sec:trip-distribution} is converted into a probability matrix
@@ -11,7 +14,7 @@ The flow matrix $\Fij$ of \cref{sec:trip-distribution} is converted into a proba
 from which $n$ origin--destination pairs are sampled with replacement, with $n \ge 10\,000$. For each pair, a random
 origin coordinate and a random destination coordinate are drawn from within the respective zones. The departure time of
 each trip is sampled as described in the next subsection.
-\todo{State $n$, the random seed (from the setup cell of notebook ex31), how random points inside a polygon are drawn (e.g.\ rejection
+\todo{State $n$, the random seed, how random points inside a polygon are drawn (e.g.\ rejection
 sampling in the bounding box) and whether the sampled coordinates are drawn uniformly in the municipality or restricted
 (e.g.\ to built-up areas).}
 
@@ -27,6 +30,10 @@ sampling in the bounding box) and whether the sampled coordinates are drawn unif
 with $\Fij$ (e.g.\ correlation or relative error of the aggregated sample against \cref{eq:probability-matrix}).}
 
 \subsection{Distribution of the departure times (1 point)}
+
+\begin{qa}{Plot the distribution of the departure times as a histogram or CDF.}
+\todo{answer}
+\end{qa}
 
 \paragraph{Method.}
 The departure time $T$ (in seconds after midnight) of each trip is drawn from a normal distribution,
