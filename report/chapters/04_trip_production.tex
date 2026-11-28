@@ -141,6 +141,18 @@ Pierre Heuze Sud), where 65--69\,\% of the persons aged 15 and over are in SPC~8
 40{,}937 trips (14.0\,\%), followed by H\'erouville-Saint-Clair (8{,}858), Lisieux (7{,}599), Vire Normandie (6{,}285)
 and Bayeux (5{,}125).
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{trips_per_inhabitant_map}
+  \caption{Generated trips per inhabitant, $\Oi$ divided by the population (\code{P19\_POP}) of the IRIS. Same layout
+  and data as \cref{fig:trips-per-iris-map}.}
+  \label{fig:trips-per-inhabitant-map}
+\end{figure}
+
+Per inhabitant (\cref{fig:trips-per-inhabitant-map}), the values are much more even (median 0.46 trips per inhabitant
+and IRIS, 5--95\,\%: 0.35--0.72): they are highest in almost empty activity zones and small villages, where the offset
+dominates, and lowest in the student quarters of Caen (0.10--0.17).
+
 \subsection{Plausibility check with commuting data}\label{sec:trip-production-plausibility}
 
 The model is a simple linear model, so there is no ``true'' value to compare with. Its factors were estimated in the
