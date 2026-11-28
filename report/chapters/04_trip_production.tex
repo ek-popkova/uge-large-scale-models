@@ -10,9 +10,8 @@ aggregated census \cite{insee-census-aggregated}:
   \Oi = \max\!\left(\beta_0 + \sum_{s=1}^{8} \beta_s\, n_{i,s},\; 0\right),
 \end{equation}
 where $s$ indexes the socio-professional category (SPC), $\beta_s$ is the growth factor of SPC $s$, and $n_{i,s}$ is the
-size of the population older than 15 years with SPC $s$ in zone $i$. The offset $\beta_0$ is added \emph{once per
-zone}, not once per SPC. The parameters are given in \cref{tab:trip-generation-parameters}. The total number of
-generated trips is
+size of the population older than 15 years with SPC $s$ in zone $i$. The parameters are given in
+\cref{tab:trip-generation-parameters}. The total number of generated trips is
 \begin{equation}\label{eq:total-origins}
   O = \sum_i \Oi .
 \end{equation}
@@ -38,38 +37,154 @@ generated trips is
   \end{tabular}
 \end{table}
 
-\todo{State the zone on which \cref{eq:trip-generation} is evaluated (IRIS, as the aggregated census is available at IRIS
-level and the assignment asks for a map per IRIS, or municipality). Because of the offset $\beta_0$ and the $\max$,
-the total depends on this choice: justify it, and describe how IRIS values are aggregated to municipalities. Describe
-how $n_{i,s}$ is read from the aggregated file and how municipality and IRIS codes were joined.}
+\emph{Data.} $n_{i,s}$ are the variables \code{C19\_POP15P\_CS1} to \code{C19\_POP15P\_CS8} of the aggregated census
+RP2019 by IRIS, read with the IRIS and municipality codes as strings (\cref{sec:territorial-I}). They are weighted
+counts and therefore not integers. The 656 IRIS codes of the census are exactly those of the IGN boundaries
+\cite{ign-contours-iris}: there is no code in only one of the two files, every IRIS belongs to the same municipality in
+both, and in every IRIS the eight SPC add up to the population aged 15 and over (\code{C19\_POP15P}).
+
+We made three decisions:
+\begin{enumerate}
+  \item \emph{The offset is added once per zone.} In matrix form, $O = \max(\beta_0 + X\beta, 0)$, with $X$ the matrix of
+  the $n_{i,s}$ (one row per zone, one column per SPC). The course notebook adds the intercept inside the sum over the
+  SPC, i.e.\ eight times per zone.\footnote{Course notebook \emph{02 Trip generation}:
+  \code{np.sum(intercept + X * coefficients, axis=1)}. Applied to Calvados, this formula gives 417{,}054 trips instead
+  of 291{,}949 ($+42.9\,\%$, i.e.\ $7 \times 656 \times \beta_0$ too many).} We do not copy this. The implementation is
+  checked against a term-by-term computation for one zone (Thue et Mue: $27.244 + 2{,}890.758 = 2{,}918.002$ trips).
+  \item \emph{The zone is the IRIS.} The exercise asks for a map per IRIS, and the bonus part of the course notebook
+  also evaluates the model per IRIS. We therefore evaluate \cref{eq:trip-generation} on the \textbf{656 IRIS} of
+  Calvados. 511 municipalities are not split into IRIS and form a single IRIS each; the other 17 municipalities have
+  145 IRIS. The value of a municipality, used in \cref{sec:trip-attraction,sec:trip-distribution}, is the sum over its
+  IRIS, $O_m = \sum_{i \in m} \Oi$. Because the offset is added once per zone, the total depends on the zoning. For
+  comparison only, we also evaluate the model directly on the 528 municipalities.
+  \item \emph{Clipping.} $\max(\cdot, 0)$ is applied per zone. The offset is positive, and only SPC~8 has a negative
+  factor, so we expected no clipped zone. We checked this.
+\end{enumerate}
 
 \paragraph{Result.}
-\todo{Report the total number of generated trips $O$ and, if useful, how many zones are clipped at zero by the $\max$.}
+The model generates \textbf{291{,}949 trips} in Calvados, evaluated on the 656 IRIS. \textbf{No zone is clipped}: the
+SPC part $\sum_s \beta_s n_{i,s}$ is non-negative in every IRIS. The smallest value is exactly $\beta_0 = 27.244$,
+in the only IRIS without population aged 15 and over (an activity zone of Cormelles-le-Royal). Evaluated directly on the
+528 municipalities, the model gives 288{,}462 trips, which is $3{,}487 = 128\,\beta_0$ fewer ($-1.2\,\%$). Per
+municipality the difference is exactly (number of IRIS $- 1$)$\times \beta_0$, so it only concerns the 17 split
+municipalities. We use the IRIS-level result. The map is per IRIS, and the municipality values that enter
+\cref{sec:trip-attraction} are then sums of the mapped values, with the same total.
 
 \subsection{Trips per SPC and map of trips per IRIS (1 point)}
 
 \paragraph{Method.}
-\todo{Describe how the trips per SPC are obtained (contribution $\beta_s \sum_i n_{i,s}$ per SPC, and how the offset is
-shown or attributed in the bar plot) and how the total per IRIS is mapped.}
+No zone is clipped, so the linear model splits the total exactly into one contribution per SPC,
+$T_s = \beta_s \sum_i n_{i,s}$, plus the contribution of the offset, $656\,\beta_0 = 17{,}872$ trips. The offset
+belongs to no SPC and is shown as a separate bar (\cref{fig:trips-per-spc}). $\beta_s$ can be read as the number of
+trips per person aged 15 and over of SPC $s$ (\cref{tab:trips-per-spc}). The map (\cref{fig:trips-per-iris-map}) shows
+$\Oi$ per IRIS on a classed sequential colour scale, with a second panel zoomed on Caen, where the IRIS are small.
 
 \begin{figure}[H]
   \centering
-  \figplaceholder{trips_per_spc}
-  \caption{\todo{Caption: number of generated trips per SPC in the study area.}}
+  \includegraphics[width=0.9\textwidth]{trips_per_spc}
+  \caption{Generated trips per SPC in Calvados, $T_s = \beta_s n_s$, with the share of the total of 291{,}949 trips.
+  Grey: the model offset $\beta_0$, added once in each of the 656 IRIS; it belongs to no SPC. SPC~8 has a negative
+  factor and therefore a negative contribution. Data: INSEE RP2019, aggregated census by IRIS~\cite{insee-census-aggregated}.}
   \label{fig:trips-per-spc}
 \end{figure}
 
+\begin{table}[H]
+  \centering
+  \caption{Population aged 15 and over $n_s$, trips per person $\beta_s$ and generated trips $T_s = \beta_s n_s$ per
+  SPC in Calvados.}
+  \label{tab:trips-per-spc}
+  \begin{tabular}{@{}clrrrr@{}}
+    \toprule
+    $s$ & SPC & $n_s$ & $\beta_s$ & $T_s$ & Share \\
+    \midrule
+    1 & Agriculteurs exploitants & 5{,}197 & 0.319 & 1{,}658 & 0.6\,\% \\
+    2 & Artisans, commer\c{c}ants, chefs d'entreprise & 20{,}633 & 0.994 & 20{,}509 & 7.0\,\% \\
+    3 & Cadres, prof.\ intellectuelles sup\'erieures & 41{,}281 & 0.863 & 35{,}625 & 12.2\,\% \\
+    4 & Professions interm\'ediaires & 77{,}698 & 0.990 & 76{,}921 & 26.3\,\% \\
+    5 & Employ\'es & 93{,}107 & 0.780 & 72{,}624 & 24.9\,\% \\
+    6 & Ouvriers & 73{,}970 & 0.708 & 52{,}371 & 17.9\,\% \\
+    7 & Retrait\'es & 174{,}442 & 0.120 & 20{,}933 & 7.2\,\% \\
+    8 & Autres sans activit\'e professionnelle & 89{,}906 & $-0.073$ & $-6{,}563$ & $-2.2$\,\% \\
+    \midrule
+    0 & Model offset ($\beta_0 \times 656$ IRIS) & & 27.244 & 17{,}872 & 6.1\,\% \\
+    \midrule
+      & Total & 576{,}234 & & \textbf{291{,}949} & 100.0\,\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \begin{figure}[H]
   \centering
-  \figplaceholder{trips_per_iris_map}
-  \caption{\todo{Caption: total number of generated trips per IRIS.}}
+  \includegraphics[width=\textwidth]{trips_per_iris_map}
+  \caption{Generated trips $\Oi$ per IRIS (656 IRIS). Right: zoom on Caen and its first ring, with municipality
+  boundaries in black. In rural areas an ``IRIS'' is a whole municipality (511 of the 528 municipalities are not
+  split), so the map mostly reflects the population size of the zone. Data: INSEE RP2019~\cite{insee-census-aggregated},
+  IGN CONTOURS-IRIS 2021~\cite{ign-contours-iris}; Lambert-93.}
   \label{fig:trips-per-iris-map}
 \end{figure}
 
 \paragraph{Result.}
-\todo{Describe \cref{fig:trips-per-spc} and \cref{fig:trips-per-iris-map}: which SPCs generate most trips and where the
-trip-generating areas are.}
+Professions interm\'ediaires (76{,}921 trips, 26.3\,\%) and employ\'es (72{,}624, 24.9\,\%) generate half of all trips,
+followed by ouvriers (17.9\,\%) and cadres (12.2\,\%). SPC 1--6 together generate 259{,}707 trips (89.0\,\%).
+Retired persons are the largest group aged 15 and over (174{,}442), but they generate only 20{,}933 trips ($\beta_7 =
+0.12$). SPC~8 (89{,}906 persons: pupils, students, persons at home and unemployed persons who never worked) contributes
+$-6{,}563$ trips. In the linear model each such person lowers the trips of the zone by 0.073. This is a correction
+term of the fitted regression, not a negative number of trips made by these persons. The factors were estimated on
+commuting data, in which these persons hardly appear. The bars add up exactly to the total, because no zone is clipped.
+
+On the map, the values range from 27 to 3{,}642 trips per IRIS, with a median of 258. The darkest zones are large rural
+\emph{communes nouvelles} that form a single IRIS: M\'ezidon Vall\'ee d'Auge (3{,}642), Souleuvre en Bocage (3{,}508)
+and Thue et Mue (2{,}918). The 123 residential IRIS of the split municipalities have about 2{,}060 inhabitants and 800
+trips each on average, which gives the even mid-range colours of Caen and its ring. The light IRIS inside Caen are
+activity zones with few residents (La Prairie, Mont Coco, two activity zones) and student quarters (Universit\'e,
+Pierre Heuze Sud), where 65--69\,\% of the persons aged 15 and over are in SPC~8. Per municipality, Caen generates
+40{,}937 trips (14.0\,\%), followed by H\'erouville-Saint-Clair (8{,}858), Lisieux (7{,}599), Vire Normandie (6{,}285)
+and Bayeux (5{,}125).
+
+\subsection{Plausibility check with commuting data}\label{sec:trip-production-plausibility}
+
+The model is a simple linear model, so there is no ``true'' value to compare with. Its factors were estimated in the
+course on commuting data, however, so $O_m$ should behave like commuting departures. We compare it with two counts of
+\cref{sec:territorial-II} per municipality (\cref{tab:trips-plausibility}): the employed residents $R_m$ of
+MOBPRO~\cite{insee-mobpro-2019} and the working inhabitants $W^{\mathrm{res}}_m$ (persons aged 15 and over in SPC 1--6).
+
+\begin{table}[H]
+  \centering
+  \caption{Generated trips compared with real counts at the place of residence, Calvados 2019. Ratio of the totals,
+  and Pearson correlation over the 528 municipalities, with and without Caen.}
+  \label{tab:trips-plausibility}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    Reference & Total & $O / \text{ref.}$ & $r$ & $r$ without Caen \\
+    \midrule
+    Generated trips $O$ (model) & 291{,}949 & & & \\
+    MOBPRO employed residents $R$ & 277{,}131 & 1.053 & 0.9995 & 0.9974 \\
+    Working inhabitants $W^{\mathrm{res}}$ (SPC 1--6) & 311{,}886 & 0.936 & 0.9998 & 0.9991 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The model generates \textbf{about one trip per employed resident} (ratio 1.05), with a correlation of 0.9995 per
+municipality (Spearman 0.997). The trips therefore behave like the home-to-work departures of the employed residents.
+MOBPRO also counts the 30\,\% who work in their own municipality. The ratio $O_m / R_m$ has a median of 1.11 (5--95\,\%:
+0.96--1.62). It is close to 1 in municipalities with more than 500 inhabitants (1.02--1.05 by size class; Caen 1.06),
+but 1.35 in the 118 municipalities with fewer than 200 inhabitants. There the offset of 27.2 trips per zone is large
+compared with a few dozen employed residents.
 
 \paragraph{Problems encountered.}
-\todo{Document problems, e.g.\ the offset (added once, not once per SPC), IRIS without population, negative values
-clipped by the $\max$, code mismatches between IRIS in the census and in the IGN boundaries.}
+\begin{itemize}
+  \item \emph{Census per IRIS.} The census table of \cref{sec:territorial-I} was aggregated to municipalities. The
+  notebook of Exercise 1.2 now also writes the table per IRIS. It was re-run from a fresh kernel, and its results are
+  unchanged.
+  \item \emph{Offset in the course notebook.} The course notebook adds the offset once per SPC, i.e.\ eight times per
+  zone. With that formula the total would be 42.9\,\% higher. We add it once per zone and check the implementation on
+  one zone by hand.
+  \item \emph{The total depends on the zoning.} With one offset per zone, the 656 IRIS give 3{,}487 trips (1.2\,\%) more
+  than the 528 municipalities. We evaluate per IRIS, consistent with the map, and sum the IRIS to municipalities.
+  \item \emph{Offset in (almost) empty zones.} The offset creates trips where nobody lives. An activity zone of
+  Cormelles-le-Royal without any resident aged 15 and over gets 27.2 trips, and the 11 IRIS with fewer than 50 persons
+  aged 15 and over get 498 trips. Small municipalities get relatively more trips (see the plausibility check). We keep
+  the model as specified; the offset is 6.1\,\% of the total.
+  \item \emph{Negative factor of SPC~8.} No zone needs clipping in Calvados, but the contribution of SPC~8 is negative
+  ($-6{,}563$ trips). We show it as a negative bar and interpret it as a correction term of the regression.
+\end{itemize}
