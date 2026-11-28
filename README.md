@@ -30,6 +30,23 @@ vectors and matrices in Person B's part. Write it with `write_zones(zones)` (set
 contract) and read it with `read_zones()` (setup cell of ex23). Both notebooks define the contract in `validate_zones`;
 if the contract changes, change it in both.
 
+**Committed hand-off files.** `data/processed/` is git-ignored except for these two files, which are committed so that
+Person B receives them with the repository:
+
+| File | Written by | Content |
+|---|---|---|
+| `data/processed/zones.parquet` | ex21_22 | the zones above (O'_i, D_j per municipality) |
+| `data/processed/commutes_14.parquet` | ex13 | MOBPRO RP2019 commuting flows with origin **and** destination in department 14: columns `origin_id`, `destination_id` (INSEE codes, str), `weight` (persons, float); 9,866 pairs, 255,249 persons (incl. 83,263 within the same municipality). Real data, for validating the gravity model in Ex. 2.3 |
+
+Numbers Person B needs (from ex21_22, `ex22_results.json`):
+
+- N = **126,432.6** trips (`O.sum() == D.sum() == N`); N is the employment term 0.7 × 180,618 URSSAF employees.
+- **528 zones**, sorted by `municipality_id`; CRS **EPSG:2154**.
+- **55 zones with D = 0** (no URSSAF employee): their columns of the flow matrix F will be zero (no trip ends
+  there, not even within the municipality); their O is still > 0.
+
+Re-run ex13 or ex21_22 → commit the updated file together with the notebook.
+
 **Starting early:** until ex21_22 is done, Person B can build placeholder zones in ex23 (see the note there):
 O = population 15+ and D = URSSAF employment, scaled to the same total. This is **placeholder data**, not the
 result of Exercises 2.1/2.2: it creates the marker `data/processed/zones.PLACEHOLDER`, `read_zones()` warns while the
@@ -53,7 +70,8 @@ by several notebooks (e.g. `DEPARTMENT`, `CRS`, the hand-off contract) is define
 Download the raw data by hand into `data/raw/` (git-ignored); links, the exact file to pick and the known pitfalls
 are in [`data/DATA_SOURCES.md`](data/DATA_SOURCES.md). Then adjust the file names in the setup cell of the
 notebooks that read them. Local download helpers can live in `scripts/` (git-ignored).
-Intermediate files go to `data/processed/` (git-ignored).
+Intermediate files go to `data/processed/` (git-ignored, except the two hand-off files `zones.parquet` and
+`commutes_14.parquet`, see above).
 
 ## Notebooks
 
@@ -97,7 +115,8 @@ and `\figplaceholder{...}`, fill in all names and e-mail addresses (required by 
 - Commit notebooks **with their outputs**: before committing, run the notebook top to bottom from a fresh kernel
   ("Restart Kernel and Run All") so that the saved outputs match the code. Also commit LaTeX, bibliography and the
   final figure PDFs in `report/figures/`. **No data, no compiled report PDF and no helper scripts in Git**
-  (`.gitignore` enforces this).
+  (`.gitignore` enforces this); the only data in Git are the two hand-off files `zones.parquet` and
+  `commutes_14.parquet` (see "Hand-off contract A → B").
 - Every random draw uses `SEED` (setup cell of ex31); every parameter is defined in the setup cell of the notebook
   that uses it.
 - Every place that needs a result is a visible `\todo{...}` (LaTeX) or `# TODO` (code); search for `TODO` before submitting.
